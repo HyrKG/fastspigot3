@@ -1,5 +1,7 @@
 # FastSpigot3 项目说明
 
+![image](https://github.com/HyrKG/fastspigot3/blob/master/logo.png)
+
 ## 项目简介
 针对Spigot插件开发的轻量级IoC、DI容器框架。
 
