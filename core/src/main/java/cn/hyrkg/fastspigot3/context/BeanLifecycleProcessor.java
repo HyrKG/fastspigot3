@@ -1,16 +1,16 @@
-package cn.hyrkg.fastspigot3.framework.context;
+package cn.hyrkg.fastspigot3.context;
 
-import cn.hyrkg.fastspigot3.framework.annotation.lifecycle.OnCreate;
-import cn.hyrkg.fastspigot3.framework.annotation.lifecycle.OnReady;
-import cn.hyrkg.fastspigot3.framework.annotation.lifecycle.OnDestroy;
-import cn.hyrkg.fastspigot3.framework.util.ReflectionUtils;
+import cn.hyrkg.fastspigot3.annotation.lifecycle.OnCreate;
+import cn.hyrkg.fastspigot3.annotation.lifecycle.OnReady;
+import cn.hyrkg.fastspigot3.annotation.lifecycle.OnDestroy;
+import cn.hyrkg.fastspigot3.util.ReflectionUtils;
 
 import java.lang.reflect.Method;
 
 /**
  * 负责触发生命周期回调
  */
-public class LifecycleInvoker {
+public class BeanLifecycleProcessor {
 
     public void invokeCreate(Object instance) throws ReflectiveOperationException {
         for (Method annotatedMethod : ReflectionUtils.findAnnotatedMethods(instance.getClass(), OnCreate.class)) {

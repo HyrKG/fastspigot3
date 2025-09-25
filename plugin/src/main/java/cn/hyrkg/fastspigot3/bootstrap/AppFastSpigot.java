@@ -1,6 +1,6 @@
 package cn.hyrkg.fastspigot3.bootstrap;
 
-import cn.hyrkg.fastspigot3.framework.beans.BeanManager;
+import cn.hyrkg.fastspigot3.beans.BeanManager;
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.annotation.plugin.Plugin;

@@ -1,10 +1,10 @@
-package cn.hyrkg.fastspigot3.framework.inject;
+package cn.hyrkg.fastspigot3.beans.factory;
 
-import cn.hyrkg.fastspigot3.framework.annotation.Inject;
-import cn.hyrkg.fastspigot3.framework.annotation.Instance;
-import cn.hyrkg.fastspigot3.framework.annotation.Autowired;
-import cn.hyrkg.fastspigot3.framework.beans.BeanManager;
-import cn.hyrkg.fastspigot3.framework.util.ReflectionUtils;
+import cn.hyrkg.fastspigot3.annotation.Inject;
+import cn.hyrkg.fastspigot3.annotation.Instance;
+import cn.hyrkg.fastspigot3.annotation.Autowired;
+import cn.hyrkg.fastspigot3.beans.BeanManager;
+import cn.hyrkg.fastspigot3.util.ReflectionUtils;
 import lombok.RequiredArgsConstructor;
 
 import java.lang.reflect.Field;
@@ -17,7 +17,7 @@ import java.lang.reflect.Field;
  * 设计要点：优先从 BeanManager 获取单例；若不存在则反射创建、注册并递归注入。
  */
 @RequiredArgsConstructor
-public class Injector {
+public class BeanInjector {
 
     private final BeanManager beanManager;
 

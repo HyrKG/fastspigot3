@@ -1,4 +1,4 @@
-package cn.hyrkg.fastspigot3.framework.beans;
+package cn.hyrkg.fastspigot3.beans;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -6,10 +6,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import cn.hyrkg.fastspigot3.framework.context.LifecycleInvoker;
-import cn.hyrkg.fastspigot3.framework.context.ScanService;
-import cn.hyrkg.fastspigot3.framework.inject.Injector;
-import cn.hyrkg.fastspigot3.framework.dependency.DependencyResolver;
+import cn.hyrkg.fastspigot3.beans.factory.BeanFactory;
+import cn.hyrkg.fastspigot3.context.BeanLifecycleProcessor;
+import cn.hyrkg.fastspigot3.scanning.ComponentScanner;
+import cn.hyrkg.fastspigot3.beans.factory.BeanInjector;
+import cn.hyrkg.fastspigot3.beans.support.BeanDependencyResolver;
 
 
 /**
@@ -21,8 +22,8 @@ import cn.hyrkg.fastspigot3.framework.dependency.DependencyResolver;
 public class BeanManager {
 
     private final BeanFactory factory = new BeanFactory(this); // Bean 工厂
-    private final Injector injector = new Injector(this); // 依赖注入器
-    private final LifecycleInvoker lifecycle = new LifecycleInvoker(); // 生命周期回调器
+    private final BeanInjector beanInjector = new BeanInjector(this); // 依赖注入器
+    private final BeanLifecycleProcessor lifecycle = new BeanLifecycleProcessor(); // 生命周期回调器
 
     private HashMap<Class<?>, Object> registeredBeanMap = new HashMap<>(); // 注册的Bean映射
     private final ThreadLocal<Set<Class<?>>> constructing = ThreadLocal.withInitial(HashSet::new); // 构造栈，用于检测循环依赖，避免无限递归
@@ -35,7 +36,7 @@ public class BeanManager {
             T instance = createGuarded(clazz);
             lifecycle.invokeCreate(instance);
             registerBeanInstance(clazz, instance);
-            injector.injectInto(instance);
+            beanInjector.injectInto(instance);
             lifecycle.invokeReady(instance);
             return instance;
         } catch (ReflectiveOperationException e) {
@@ -110,7 +111,7 @@ public class BeanManager {
      * 扫描并注册可注入类：仅对具备可注入字段且可无参构造的类进行注册。
      */
     public void scanAndRegister(String basePackage) {
-        ScanService scan = new ScanService();
+        ComponentScanner scan = new ComponentScanner();
         // 1) 收集候选类
         List<Class<?>> candidates = new LinkedList<>();
         for (Class<?> clazz : scan.scan(basePackage)) {
@@ -128,7 +129,7 @@ public class BeanManager {
         }
 
         // 2) 使用解析器计算注册顺序
-        DependencyResolver resolver = new DependencyResolver();
+        BeanDependencyResolver resolver = new BeanDependencyResolver();
         List<Class<?>> ordered = resolver.resolveOrder(candidates);
 
         // 3) 按顺序注册（无法排序的已被拼接在 ordered 末尾）

@@ -1,6 +1,6 @@
 package cn.hyrkg.fastspigot3.test;
 
-import cn.hyrkg.fastspigot3.framework.beans.BeanManager;
+import cn.hyrkg.fastspigot3.beans.BeanManager;
 
 public class TestMain {
 

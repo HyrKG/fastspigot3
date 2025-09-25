@@ -1,6 +1,7 @@
-package cn.hyrkg.fastspigot3.framework.beans;
+package cn.hyrkg.fastspigot3.beans.factory;
 
 
+import cn.hyrkg.fastspigot3.beans.BeanManager;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor

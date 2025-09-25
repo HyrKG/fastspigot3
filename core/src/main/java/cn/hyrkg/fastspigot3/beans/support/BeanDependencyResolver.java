@@ -1,16 +1,14 @@
-package cn.hyrkg.fastspigot3.framework.dependency;
+package cn.hyrkg.fastspigot3.beans.support;
 
-import cn.hyrkg.fastspigot3.framework.annotation.Autowired;
-import cn.hyrkg.fastspigot3.framework.annotation.Inject;
-import cn.hyrkg.fastspigot3.framework.util.ReflectionUtils;
+import cn.hyrkg.fastspigot3.annotation.Autowired;
+import cn.hyrkg.fastspigot3.annotation.Inject;
+import cn.hyrkg.fastspigot3.util.ReflectionUtils;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -21,7 +19,7 @@ import java.util.stream.Collectors;
  * 基于候选类的依赖收集与拓扑排序。仅使用字段上的 @Inject/@Autowired 建图，
  * 仅保留候选集合内的依赖；候选集外的依赖视为已满足（不纳入排序边）。
  */
-public final class DependencyResolver {
+public final class BeanDependencyResolver {
 
     public List<Class<?>> resolveOrder(List<Class<?>> candidates) {
         if (candidates == null || candidates.isEmpty()) {

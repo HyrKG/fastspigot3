@@ -1,19 +1,15 @@
-package cn.hyrkg.fastspigot3.framework.context;
+package cn.hyrkg.fastspigot3.scanning;
 
-import cn.hyrkg.fastspigot3.framework.annotation.Inject;
-import cn.hyrkg.fastspigot3.framework.annotation.Autowired;
-import cn.hyrkg.fastspigot3.framework.scanning.ClassScanner;
-import cn.hyrkg.fastspigot3.framework.annotation.Component;
+import cn.hyrkg.fastspigot3.annotation.Component;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
 /**
  * 封装类扫描与可注册判断逻辑。
  */
-public class ScanService {
+public class ComponentScanner {
 
-    private final ClassScanner scanner = new ClassScanner();
+    private final ClassPathScanner scanner = new ClassPathScanner();
 
     public Iterable<Class<?>> scan(String basePackage) {
         return scanner.scan(basePackage);

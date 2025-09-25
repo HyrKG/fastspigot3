@@ -1,4 +1,4 @@
-package cn.hyrkg.fastspigot3.framework.dependency;
+package cn.hyrkg.fastspigot3.beans.support;
 
 import java.util.List;
 import java.util.stream.Collectors;

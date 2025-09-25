@@ -1,4 +1,4 @@
-package cn.hyrkg.fastspigot3.framework.annotation.lifecycle;
+package cn.hyrkg.fastspigot3.annotation.lifecycle;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -6,10 +6,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 生命周期回调：当 Bean 由容器构造完成后立即调用。
- * 要求：无参方法；可为私有。
+ * Bean 卸载（销毁）阶段回调标记。
+ * 被该注解标记的无参方法将在 Bean 从容器卸载前被调用。
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface OnCreate {
+public @interface OnDestroy {
 }
+
+

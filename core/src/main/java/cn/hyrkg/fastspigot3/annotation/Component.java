@@ -1,4 +1,4 @@
-package cn.hyrkg.fastspigot3.framework.annotation;
+package cn.hyrkg.fastspigot3.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

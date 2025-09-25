@@ -1,4 +1,4 @@
-package cn.hyrkg.fastspigot3.framework.util;
+package cn.hyrkg.fastspigot3.util;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;

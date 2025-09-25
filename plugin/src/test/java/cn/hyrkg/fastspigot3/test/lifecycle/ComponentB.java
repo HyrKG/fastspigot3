@@ -1,7 +1,7 @@
 package cn.hyrkg.fastspigot3.test.lifecycle;
 
-import cn.hyrkg.fastspigot3.framework.annotation.lifecycle.OnCreate;
-import cn.hyrkg.fastspigot3.framework.annotation.lifecycle.OnReady;
+import cn.hyrkg.fastspigot3.annotation.lifecycle.OnCreate;
+import cn.hyrkg.fastspigot3.annotation.lifecycle.OnReady;
 
 public class ComponentB {
 
