@@ -1,7 +1,8 @@
 package cn.hyrkg.fastspigot3.core;
 
-import cn.hyrkg.fastspigot3.annotation.OnCreate;
-import cn.hyrkg.fastspigot3.annotation.OnReady;
+import cn.hyrkg.fastspigot3.annotation.lifecycle.OnCreate;
+import cn.hyrkg.fastspigot3.annotation.lifecycle.OnReady;
+import cn.hyrkg.fastspigot3.util.ReflectionUtils;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
