@@ -7,12 +7,12 @@ public class ComponentB {
 
     @OnCreate
     private void created() {
-        LifeRecorder.record("B:onCreate");
+        System.out.println("B:onCreate");
     }
 
     @OnReady
     private void ready() {
-        LifeRecorder.record("B:onReady");
+        System.out.println("B:onReady");
     }
 }
 
