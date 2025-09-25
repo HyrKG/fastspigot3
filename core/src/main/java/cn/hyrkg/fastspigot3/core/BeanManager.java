@@ -27,7 +27,7 @@ public class BeanManager {
     private HashMap<Class<?>, Object> registeredBeanMap = new HashMap<>();
     private final ThreadLocal<Set<Class<?>>> constructing = ThreadLocal.withInitial(HashSet::new);
     private final Injector injector = new Injector(this);
-    private final Set<Object> readyInvoked = Collections.newSetFromMap(new IdentityHashMap<>());
+    private final LifecycleInvoker lifecycle = new LifecycleInvoker();
 
 
     /**
@@ -48,7 +48,7 @@ public class BeanManager {
             // 对新注册的 Bean 立即执行注入
             injector.injectInto(instance);
             // 注入完成后触发 @OnReady
-            invokeReady(instance);
+            lifecycle.invokeReady(instance);
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Failed to instantiate bean: " + clazz.getName(), e);
         }
@@ -109,7 +109,7 @@ public class BeanManager {
         try {
             T instance = createInstance(clazz);
             // 构造完成后触发 @OnCreate
-            invokeCreate(instance);
+            lifecycle.invokeCreate(instance);
             return instance;
         } finally {
             stack.remove(clazz);
@@ -119,44 +119,7 @@ public class BeanManager {
     /**
      * 反射调用 @OnCreate 标注的无参方法。
      */
-    private void invokeCreate(Object instance) {
-        for (java.lang.reflect.Method m : instance.getClass().getDeclaredMethods()) {
-            if (!m.isAnnotationPresent(OnCreate.class)) continue;
-            if (m.getParameterCount() != 0) continue;
-            boolean acc = m.isAccessible();
-            try {
-                m.setAccessible(true);
-                m.invoke(instance);
-            } catch (ReflectiveOperationException e) {
-                throw new RuntimeException("Failed to invoke @OnCreate: " + m.getName() + " on " + instance.getClass().getName(), e);
-            } finally {
-                m.setAccessible(acc);
-            }
-        }
-    }
-
-    /**
-     * 反射调用 @OnReady 标注的无参方法。
-     */
-    private void invokeReady(Object instance) {
-        if (readyInvoked.contains(instance)) {
-            return;
-        }
-        for (java.lang.reflect.Method m : instance.getClass().getDeclaredMethods()) {
-            if (!m.isAnnotationPresent(OnReady.class)) continue;
-            if (m.getParameterCount() != 0) continue;
-            boolean acc = m.isAccessible();
-            try {
-                m.setAccessible(true);
-                m.invoke(instance);
-            } catch (ReflectiveOperationException e) {
-                throw new RuntimeException("Failed to invoke @OnReady: " + m.getName() + " on " + instance.getClass().getName(), e);
-            } finally {
-                m.setAccessible(acc);
-            }
-        }
-        readyInvoked.add(instance);
-    }
+    
 
     /**
      * 供 @Inject 使用：
@@ -166,8 +129,8 @@ public class BeanManager {
         try {
             T created = createGuarded(depType);
             registerBeanInstance(depType, created);
-            injector.injectInto(created);
-            invokeReady(created);
+        injector.injectInto(created);
+        lifecycle.invokeReady(created);
             return created;
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Failed to resolve dependency for inject: " + depType.getName(), e);
@@ -182,9 +145,9 @@ public class BeanManager {
      */
     public void wireInto(Object target) {
         // 对外部传入但未由容器构造的对象，也触发一次 @OnCreate
-        invokeCreate(target);
+        lifecycle.invokeCreate(target);
         injector.injectInto(target);
-        invokeReady(target);
+        lifecycle.invokeReady(target);
     }
 
     /**
