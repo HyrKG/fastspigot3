@@ -1,7 +1,7 @@
 package cn.hyrkg.fastspigot3.framework.context;
 
+import cn.hyrkg.fastspigot3.framework.annotation.Inject;
 import cn.hyrkg.fastspigot3.framework.annotation.Autowired;
-import cn.hyrkg.fastspigot3.framework.annotation.Wire;
 import cn.hyrkg.fastspigot3.framework.scanning.ClassScanner;
 import cn.hyrkg.fastspigot3.framework.annotation.Component;
 
@@ -30,11 +30,6 @@ public class ScanService {
         }
         if (clazz.isAnnotationPresent(Component.class)) {
             return true;
-        }
-        for (Field field : clazz.getDeclaredFields()) {
-            if (field.isAnnotationPresent(Autowired.class) || field.isAnnotationPresent(Wire.class)) {
-                return true;
-            }
         }
         return false;
     }

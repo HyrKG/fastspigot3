@@ -1,8 +1,8 @@
 package cn.hyrkg.fastspigot3.framework.inject;
 
-import cn.hyrkg.fastspigot3.framework.annotation.Autowired;
+import cn.hyrkg.fastspigot3.framework.annotation.Inject;
 import cn.hyrkg.fastspigot3.framework.annotation.Instance;
-import cn.hyrkg.fastspigot3.framework.annotation.Wire;
+import cn.hyrkg.fastspigot3.framework.annotation.Autowired;
 import cn.hyrkg.fastspigot3.framework.beans.BeanManager;
 import cn.hyrkg.fastspigot3.framework.util.ReflectionUtils;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +41,7 @@ public class Injector {
                 ReflectionUtils.setFieldValue(annotatedField, target, target);
             }
 
-            for (Field annotatedField : ReflectionUtils.findAnnotatedFields(clazz, Autowired.class)) {
+            for (Field annotatedField : ReflectionUtils.findAnnotatedFields(clazz, Inject.class)) {
                 Object fieldValue = ReflectionUtils.getFieldValue(annotatedField, target);
                 if (fieldValue != null) {
                     beanManager.registerBeanInstance(annotatedField.getType(), fieldValue);
@@ -51,7 +51,7 @@ public class Injector {
                 }
             }
 
-            for (Field annotatedField : ReflectionUtils.findAnnotatedFields(clazz, Wire.class)) {
+            for (Field annotatedField : ReflectionUtils.findAnnotatedFields(clazz, Autowired.class)) {
                 Object bean = beanManager.getBean(annotatedField.getType());
                 ReflectionUtils.setFieldValue(annotatedField, target, bean);
             }

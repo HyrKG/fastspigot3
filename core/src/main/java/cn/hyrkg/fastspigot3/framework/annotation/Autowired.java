@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 注入一个Bean，如果Bean已存在，则会注册已存在的bean。
+ * 标记一个字段需要被注入依赖。
  */
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
