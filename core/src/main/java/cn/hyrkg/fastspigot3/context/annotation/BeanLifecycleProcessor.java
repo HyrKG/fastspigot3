@@ -1,8 +1,5 @@
-package cn.hyrkg.fastspigot3.context;
+package cn.hyrkg.fastspigot3.context.annotation;
 
-import cn.hyrkg.fastspigot3.annotation.lifecycle.OnCreate;
-import cn.hyrkg.fastspigot3.annotation.lifecycle.OnReady;
-import cn.hyrkg.fastspigot3.annotation.lifecycle.OnDestroy;
 import cn.hyrkg.fastspigot3.util.ReflectionUtils;
 
 import java.lang.reflect.Method;

@@ -1,0 +1,47 @@
+package cn.hyrkg.fastspigot3.context;
+
+import cn.hyrkg.fastspigot3.beans.factory.BeanFactory;
+import cn.hyrkg.fastspigot3.beans.factory.config.BeanDefinition;
+import cn.hyrkg.fastspigot3.beans.factory.DefaultBeanFactory;
+import cn.hyrkg.fastspigot3.context.annotation.AnnotationComponentClassScanner;
+import cn.hyrkg.fastspigot3.context.support.BeanDependencyResolver;
+import cn.hyrkg.fastspigot3.scanner.Scanner;
+
+import java.util.List;
+
+/**
+ * 应用上下文（门面）：对外提供统一的扫描、装配与 Bean 访问能力。
+ * 内部组合 DefaultBeanFactory，负责底层 Bean 的创建与注入。
+ */
+public class ApplicationContext implements BeanFactory {
+
+    private final DefaultBeanFactory beanFactory = new DefaultBeanFactory();
+    private final Scanner beanScanner = new AnnotationComponentClassScanner();
+    private final BeanDependencyResolver dependencyResolver = new BeanDependencyResolver();
+
+    public void scanAndRegister(String basePackage) {
+        List<Class<?>> componentClass = beanScanner.scan(basePackage);
+        componentClass = dependencyResolver.resolveOrder(componentClass);
+        for (Class<?> clazz : componentClass) {
+            BeanDefinition beanDefinition = beanFactory.registerBean(clazz);
+            beanFactory.loadBean(beanDefinition.getBeanName());
+        }
+    }
+
+    @Override
+    public Object getBean(String name) {
+        return beanFactory.getBean(name);
+    }
+
+    @Override
+    public Object getBean(String name, Class<?> clazz) {
+        return beanFactory.getBean(name, clazz);
+    }
+
+    @Override
+    public <T> T getBean(Class<T> requiredType) {
+        return beanFactory.getBean(requiredType);
+    }
+}
+
+

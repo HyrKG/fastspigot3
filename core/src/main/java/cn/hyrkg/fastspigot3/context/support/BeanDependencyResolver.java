@@ -1,7 +1,7 @@
-package cn.hyrkg.fastspigot3.beans.support;
+package cn.hyrkg.fastspigot3.context.support;
 
-import cn.hyrkg.fastspigot3.annotation.Autowired;
-import cn.hyrkg.fastspigot3.annotation.Inject;
+import cn.hyrkg.fastspigot3.context.annotation.Autowired;
+import cn.hyrkg.fastspigot3.context.annotation.Inject;
 import cn.hyrkg.fastspigot3.util.ReflectionUtils;
 
 import java.util.ArrayDeque;
