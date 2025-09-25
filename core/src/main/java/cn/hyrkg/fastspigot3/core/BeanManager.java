@@ -3,17 +3,9 @@ package cn.hyrkg.fastspigot3.core;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Collections;
-import java.util.IdentityHashMap;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 
 import cn.hyrkg.fastspigot3.injector.Injector;
-import cn.hyrkg.fastspigot3.scanner.ClassScanner;
-import cn.hyrkg.fastspigot3.annotation.Inject;
-import cn.hyrkg.fastspigot3.annotation.Wire;
-import cn.hyrkg.fastspigot3.annotation.OnCreate;
-import cn.hyrkg.fastspigot3.annotation.OnReady;
+ 
  
 
 /**
@@ -158,16 +150,14 @@ public class BeanManager {
      * 扫描并注册可注入类：仅对具备可注入字段且可无参构造的类进行注册。
      */
     public void scanAndRegister(String basePackage) {
-        ClassScanner scanner = new ClassScanner();
-        for (Class<?> clazz : scanner.scan(basePackage)) {
-            if (!isRegistrable(clazz)) {
+        ScanService scan = new ScanService();
+        for (Class<?> clazz : scan.scan(basePackage)) {
+            if (!scan.isRegistrable(clazz)) {
                 continue;
             }
-            // 避免重复注册
             if (registeredBeanMap.containsKey(clazz)) {
                 continue;
             }
-            // 默认自动注册可注入的类
             registerBean(clazz);
         }
     }
@@ -175,24 +165,5 @@ public class BeanManager {
     /**
      * 判定一个类是否可被容器自动注册。
      */
-    private boolean isRegistrable(Class<?> clazz) {
-        // 如果是接口或抽象类，则不注册
-        if (clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers())) {
-            return false;
-        }
-        try {
-            // 检测是否具备无参构造
-            clazz.getDeclaredConstructor();
-        } catch (NoSuchMethodException e) {
-            return false;
-        }
-        // 至少包含一个可注入字段
-        for (Field field : clazz.getDeclaredFields()) {
-            if (field.isAnnotationPresent(Inject.class)
-                    || field.isAnnotationPresent(Wire.class)) {
-                return true;
-            }
-        }
-        return false;
-    }
+    // isRegistrable 已迁移至 ScanService
 }
