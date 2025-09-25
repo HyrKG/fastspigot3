@@ -1,6 +1,4 @@
-package cn.hyrkg.fastspigot3.context.processor;
-
-import cn.hyrkg.fastspigot3.stereotype.Component;
+package cn.hyrkg.fastspigot3.context.annotation.processor;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -14,9 +12,8 @@ import java.lang.annotation.Annotation;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ComponentProcessor {
-    /**
-     * 要解析的组件注解类型
-     */
+public @interface ProcessBeanForAnnotation {
+
     Class<? extends Annotation> value();
+
 }

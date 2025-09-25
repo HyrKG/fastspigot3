@@ -2,6 +2,7 @@ package cn.hyrkg.fastspigot3.context.support;
 
 import cn.hyrkg.fastspigot3.context.annotation.Autowired;
 import cn.hyrkg.fastspigot3.context.annotation.Inject;
+import cn.hyrkg.fastspigot3.context.annotation.processor.ProcessBeanForAnnotation;
 import cn.hyrkg.fastspigot3.util.ReflectionUtils;
 
 import java.util.ArrayDeque;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 /**
  * 基于候选类的依赖收集与拓扑排序。仅使用字段上的 @Inject/@Autowired 建图，
  * 仅保留候选集合内的依赖；候选集外的依赖视为已满足（不纳入排序边）。
+ * 带有 @Processor 注释的类将被优先排序，确保最早注册。
  */
 public final class BeanDependencyResolver {
 
@@ -28,6 +30,18 @@ public final class BeanDependencyResolver {
 
         // 使用 LinkedHash* 保持确定性顺序（与 candidates 顺序一致）
         Set<Class<?>> candidateSet = new LinkedHashSet<>(candidates);
+        
+        // 分离 @Processor 类和普通类
+        List<Class<?>> processorClasses = new ArrayList<>();
+        List<Class<?>> regularClasses = new ArrayList<>();
+        
+        for (Class<?> clazz : candidates) {
+            if (clazz.isAnnotationPresent(ProcessBeanForAnnotation.class)) {
+                processorClasses.add(clazz);
+            } else {
+                regularClasses.add(clazz);
+            }
+        }
 
         // 1) 收集依赖：deps[c] = { d in candidates | c 依赖 d }
         Map<Class<?>, Set<Class<?>>> deps = new LinkedHashMap<>();
@@ -57,9 +71,18 @@ public final class BeanDependencyResolver {
             }
         }
 
-        // 3) Kahn 拓扑排序：从入度为 0 的节点开始（按 candidates 原始顺序入队）
+        // 3) Kahn 拓扑排序：优先处理 @Processor 类，然后处理普通类
         Queue<Class<?>> queue = new ArrayDeque<>();
-        for (Class<?> c : candidates) {
+        
+        // 首先将入度为0的 @Processor 类入队
+        for (Class<?> c : processorClasses) {
+            if (indegree.get(c) == 0) {
+                queue.add(c);
+            }
+        }
+        
+        // 然后将入度为0的普通类入队
+        for (Class<?> c : regularClasses) {
             if (indegree.get(c) == 0) {
                 queue.add(c);
             }
@@ -73,7 +96,13 @@ public final class BeanDependencyResolver {
                 int deg = indegree.get(next) - 1;
                 indegree.put(next, deg);
                 if (deg == 0) {
-                    queue.add(next);
+                    // 优先加入 @Processor 类
+                    if (next.isAnnotationPresent(ProcessBeanForAnnotation.class)) {
+                        // 插入到队列前面（优先处理）
+                        ((ArrayDeque<Class<?>>) queue).addFirst(next);
+                    } else {
+                        queue.add(next);
+                    }
                 }
             }
         }

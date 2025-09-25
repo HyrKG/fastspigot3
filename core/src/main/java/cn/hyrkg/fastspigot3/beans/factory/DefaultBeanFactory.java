@@ -5,8 +5,11 @@ import cn.hyrkg.fastspigot3.beans.factory.support.BeanDefinitionFactory;
 import cn.hyrkg.fastspigot3.beans.factory.support.BeanRegistry;
 import cn.hyrkg.fastspigot3.context.annotation.AnnotationBeanNameGenerator;
 import cn.hyrkg.fastspigot3.context.annotation.BeanLifecycleProcessor;
+import cn.hyrkg.fastspigot3.context.annotation.processor.BeanAnnotationProcessor;
+import cn.hyrkg.fastspigot3.context.annotation.processor.ProcessBeanForAnnotation;
 import cn.hyrkg.fastspigot3.injector.FieldInjector;
 
+import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,10 +25,10 @@ public class DefaultBeanFactory implements BeanFactory, BeanRegistry, BeanDefini
 
     // 存放 BeanDefinition（元数据）
     private final Map<String, BeanDefinition> beanDefinitionMap = new HashMap<>();
-
     // 单例池（已经实例化好的对象）
     private final Map<String, Object> singletonObjects = new HashMap<>();
-
+    // 存放processor
+    private final Map<Class<? extends Annotation>, String> processorBeanNameMap = new HashMap<>();
 
     public void registerBeanDefinition(BeanDefinition beanDefinition) {
         String beanName = beanDefinition.getBeanName();
@@ -39,6 +42,9 @@ public class DefaultBeanFactory implements BeanFactory, BeanRegistry, BeanDefini
     public BeanDefinition registerBean(Class<?> clazz) {
         BeanDefinition bean = createBeanDefinition(clazz);
         registerBeanDefinition(bean);
+        if (clazz.isAnnotationPresent(ProcessBeanForAnnotation.class)) {
+            processorBeanNameMap.put(clazz.getAnnotation(ProcessBeanForAnnotation.class).value(), bean.getBeanName());
+        }
         return bean;
     }
 
@@ -106,6 +112,17 @@ public class DefaultBeanFactory implements BeanFactory, BeanRegistry, BeanDefini
             lifecycle.invokeCreate(instance);
             injector.inject(instance, this, this);
             lifecycle.invokeReady(instance);
+
+            // 处理自定义注解
+            for (Annotation annotation : clazz.getAnnotations()) {
+                if (processorBeanNameMap.containsKey(annotation.annotationType())) {
+                    String processorBeanName = processorBeanNameMap.get(annotation.annotationType());
+                    Object processorBean = getBean(processorBeanName);
+                    if (processorBean instanceof BeanAnnotationProcessor) {
+                        ((BeanAnnotationProcessor) processorBean).postProcess(annotation, instance);
+                    }
+                }
+            }
             return instance;
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Failed to instantiate bean: " + clazz.getName(), e);
