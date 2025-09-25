@@ -22,4 +22,26 @@ public class AnnotationComponentClassScanner implements Scanner {
         }
         return classes;
     }
+
+    @Override
+    public List<Class<?>> scan(String path, Class<?> anchorClass) {
+        List<Class<?>> classes = new ArrayList<>();
+        for (Class<?> aClass : classPathScanner.scan(path, anchorClass)) {
+            if (aClass.isAnnotationPresent(Component.class)) {
+                classes.add(aClass);
+            }
+        }
+        return classes;
+    }
+
+    @Override
+    public List<Class<?>> scan(String path, ClassLoader preferredLoader) {
+        List<Class<?>> classes = new ArrayList<>();
+        for (Class<?> aClass : classPathScanner.scan(path, preferredLoader)) {
+            if (aClass.isAnnotationPresent(Component.class)) {
+                classes.add(aClass);
+            }
+        }
+        return classes;
+    }
 }

@@ -5,4 +5,6 @@ import java.util.List;
 public interface Scanner {
 
     List<Class<?>> scan(String path);
+    List<Class<?>> scan(String path, Class<?> anchorClass);
+    List<Class<?>> scan(String path, ClassLoader preferredLoader);
 }

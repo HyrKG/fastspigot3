@@ -20,7 +20,16 @@ public class ApplicationContext implements BeanFactory {
     private final BeanDependencyResolver dependencyResolver = new BeanDependencyResolver();
 
     public void scanAndRegister(String basePackage) {
-        List<Class<?>> componentClass = beanScanner.scan(basePackage);
+        scanAndRegister(basePackage, null);
+    }
+
+    public void scanAndRegister(String basePackage, Class<?> anchorClass) {
+        List<Class<?>> componentClass = null;
+        if (anchorClass == null) {
+            componentClass = beanScanner.scan(basePackage);
+        } else {
+            componentClass = beanScanner.scan(basePackage, anchorClass);
+        }
         componentClass = dependencyResolver.resolveOrder(componentClass);
         for (Class<?> clazz : componentClass) {
             BeanDefinition beanDefinition = beanFactory.registerBean(clazz);
