@@ -52,7 +52,14 @@ public class BeanManager {
      * 卸载指定类型的 Bean（忽略传入实例，仅根据类型移除）。
      */
     public void unregisterBean(Class<?> clazz) {
-        registeredBeanMap.remove(clazz);
+        Object instance = registeredBeanMap.remove(clazz);
+        if (instance != null) {
+            try {
+                lifecycle.invokeDestroy(instance);
+            } catch (ReflectiveOperationException e) {
+                throw new RuntimeException("Failed to destroy bean: " + clazz.getName(), e);
+            }
+        }
     }
 
     public <T> T getOrRegisterBean(Class<T> clazz) {

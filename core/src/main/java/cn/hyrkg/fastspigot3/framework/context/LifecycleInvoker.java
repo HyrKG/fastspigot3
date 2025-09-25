@@ -2,6 +2,7 @@ package cn.hyrkg.fastspigot3.framework.context;
 
 import cn.hyrkg.fastspigot3.framework.annotation.lifecycle.OnCreate;
 import cn.hyrkg.fastspigot3.framework.annotation.lifecycle.OnReady;
+import cn.hyrkg.fastspigot3.framework.annotation.lifecycle.OnDestroy;
 import cn.hyrkg.fastspigot3.framework.util.ReflectionUtils;
 
 import java.lang.reflect.Method;
@@ -19,6 +20,12 @@ public class LifecycleInvoker {
 
     public void invokeReady(Object instance) throws ReflectiveOperationException {
         for (Method annotatedMethod : ReflectionUtils.findAnnotatedMethods(instance.getClass(), OnReady.class)) {
+            ReflectionUtils.invokeVoid(annotatedMethod, instance);
+        }
+    }
+
+    public void invokeDestroy(Object instance) throws ReflectiveOperationException {
+        for (Method annotatedMethod : ReflectionUtils.findAnnotatedMethods(instance.getClass(), OnDestroy.class)) {
             ReflectionUtils.invokeVoid(annotatedMethod, instance);
         }
     }
