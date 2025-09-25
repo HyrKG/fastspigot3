@@ -1,10 +1,12 @@
-package cn.hyrkg.fastspigot3.core;
+package cn.hyrkg.fastspigot3.framework.beans;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import cn.hyrkg.fastspigot3.injector.Injector;
+import cn.hyrkg.fastspigot3.framework.context.LifecycleInvoker;
+import cn.hyrkg.fastspigot3.framework.context.ScanService;
+import cn.hyrkg.fastspigot3.framework.inject.Injector;
 
 
 /**

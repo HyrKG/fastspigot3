@@ -1,12 +1,12 @@
 package cn.hyrkg.fastspigot3.test.lifecycle;
 
-import cn.hyrkg.fastspigot3.annotation.Component;
-import cn.hyrkg.fastspigot3.annotation.Inject;
-import cn.hyrkg.fastspigot3.annotation.lifecycle.OnReady;
+import cn.hyrkg.fastspigot3.framework.annotation.Component;
+import cn.hyrkg.fastspigot3.framework.annotation.Autowired;
+import cn.hyrkg.fastspigot3.framework.annotation.lifecycle.OnReady;
 
 @Component
 public class LifecycleTest {
-    @Inject
+    @Autowired
     ComponentA componentA;
 
     @OnReady

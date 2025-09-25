@@ -1,4 +1,4 @@
-package cn.hyrkg.fastspigot3.plugin;
+package cn.hyrkg.fastspigot3.bootstrap;
 
 import org.bukkit.plugin.java.JavaPlugin;
 

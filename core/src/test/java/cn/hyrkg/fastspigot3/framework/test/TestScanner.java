@@ -1,6 +1,6 @@
-package cn.hyrkg.fastspigot3;
+package cn.hyrkg.fastspigot3.framework.test;
 
-import cn.hyrkg.fastspigot3.scanner.ClassScanner;
+import cn.hyrkg.fastspigot3.framework.scanning.ClassScanner;
 
 import java.util.List;
 

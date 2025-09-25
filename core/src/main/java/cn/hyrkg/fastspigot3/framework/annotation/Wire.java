@@ -1,4 +1,4 @@
-package cn.hyrkg.fastspigot3.annotation;
+package cn.hyrkg.fastspigot3.framework.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -6,9 +6,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 注入一个Bean，如果Bean已存在，则会注册已存在的bean。
+ * 标记一个字段需要被注入依赖。
  */
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Inject {
+public @interface Wire {
 }

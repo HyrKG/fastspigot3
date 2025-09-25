@@ -1,4 +1,4 @@
-package cn.hyrkg.fastspigot3.scanner;
+package cn.hyrkg.fastspigot3.framework.scanning;
 
 import java.io.File;
 import java.io.IOException;

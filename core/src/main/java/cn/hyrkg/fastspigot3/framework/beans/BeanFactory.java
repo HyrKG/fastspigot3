@@ -1,4 +1,4 @@
-package cn.hyrkg.fastspigot3.core;
+package cn.hyrkg.fastspigot3.framework.beans;
 
 
 import lombok.RequiredArgsConstructor;
