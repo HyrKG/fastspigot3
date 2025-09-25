@@ -1,4 +1,4 @@
-package cn.hyrkg.fastspigot3.bootstrap;
+package cn.hyrkg.fastspigot3.spigot;
 
 import cn.hyrkg.fastspigot3.context.ApplicationContext;
 import lombok.Getter;
@@ -16,6 +16,7 @@ public class AppFastSpigot extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
+        applicationContext.scanAndRegister(getClass().getPackage().getName());
     }
 
 }

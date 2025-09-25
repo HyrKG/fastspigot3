@@ -6,6 +6,7 @@ public class TestMain {
 
     public static void main(String[] args) {
         ApplicationContext context = new ApplicationContext();
-        context.scanAndRegister("cn.hyrkg.fastspigot3.test");
+        System.out.println(TestMain.class.getPackage().getName());
+        context.scanAndRegister(TestMain.class.getPackage().getName());
     }
 }
