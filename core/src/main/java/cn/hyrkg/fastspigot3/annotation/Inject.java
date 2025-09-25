@@ -6,8 +6,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 创建并注入一个Bean。
- * */
+ * 注入一个Bean，如果Bean已存在，则会注册已存在的bean。
+ */
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Inject {}
+public @interface Inject {
+}
