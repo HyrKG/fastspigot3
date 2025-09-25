@@ -1,6 +1,6 @@
 package cn.hyrkg.fastspigot3.bootstrap;
 
-import cn.hyrkg.fastspigot3.context.FastApplicationContext;
+import cn.hyrkg.fastspigot3.context.ApplicationContext;
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.annotation.plugin.Plugin;
@@ -10,15 +10,12 @@ import org.bukkit.plugin.java.annotation.plugin.Plugin;
 public class AppFastSpigot extends JavaPlugin {
     @Getter
     private static AppFastSpigot instance;
-    private FastApplicationContext applicationContext;
+    @Getter
+    private static ApplicationContext applicationContext = new ApplicationContext();
 
     @Override
     public void onEnable() {
         instance = this;
-
-        applicationContext = new FastApplicationContext();
-        // 扫描并注册当前工程包下的组件
-        applicationContext.scanAndRegister("cn.hyrkg.fastspigot3");
     }
 
 }

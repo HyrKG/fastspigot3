@@ -1,11 +1,11 @@
 package cn.hyrkg.fastspigot3.test;
 
-import cn.hyrkg.fastspigot3.context.FastApplicationContext;
+import cn.hyrkg.fastspigot3.context.ApplicationContext;
 
 public class TestMain {
 
     public static void main(String[] args) {
-        FastApplicationContext context = new FastApplicationContext();
+        ApplicationContext context = new ApplicationContext();
         context.scanAndRegister("cn.hyrkg.fastspigot3.test");
     }
 }

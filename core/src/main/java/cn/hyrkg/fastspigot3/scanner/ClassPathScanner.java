@@ -1,4 +1,4 @@
-package cn.hyrkg.fastspigot3.scanning;
+package cn.hyrkg.fastspigot3.scanner;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
-public class ClassPathScanner {
+public class ClassPathScanner implements Scanner {
     /**
      * 扫描指定包下的所有类
      *

@@ -6,6 +6,6 @@ public class FastPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-
+        AppFastSpigot.getApplicationContext().scanAndRegister(getClass().getPackage().getName());
     }
 }

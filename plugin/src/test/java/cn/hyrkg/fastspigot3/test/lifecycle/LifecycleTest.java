@@ -1,7 +1,7 @@
 package cn.hyrkg.fastspigot3.test.lifecycle;
 
-import cn.hyrkg.fastspigot3.annotation.Inject;
-import cn.hyrkg.fastspigot3.annotation.lifecycle.OnReady;
+import cn.hyrkg.fastspigot3.context.annotation.Inject;
+import cn.hyrkg.fastspigot3.context.annotation.OnReady;
 
 public class LifecycleTest {
     @Inject
