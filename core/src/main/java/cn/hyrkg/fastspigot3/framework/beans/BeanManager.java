@@ -2,11 +2,14 @@ package cn.hyrkg.fastspigot3.framework.beans;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import cn.hyrkg.fastspigot3.framework.context.LifecycleInvoker;
 import cn.hyrkg.fastspigot3.framework.context.ScanService;
 import cn.hyrkg.fastspigot3.framework.inject.Injector;
+import cn.hyrkg.fastspigot3.framework.dependency.DependencyResolver;
 
 
 /**
@@ -108,6 +111,8 @@ public class BeanManager {
      */
     public void scanAndRegister(String basePackage) {
         ScanService scan = new ScanService();
+        // 1) 收集候选类
+        List<Class<?>> candidates = new LinkedList<>();
         for (Class<?> clazz : scan.scan(basePackage)) {
             if (registeredBeanMap.containsKey(clazz)) {
                 continue;
@@ -115,6 +120,19 @@ public class BeanManager {
             if (!scan.isRegistrable(clazz)) {
                 continue;
             }
+            candidates.add(clazz);
+        }
+
+        if (candidates.isEmpty()) {
+            return;
+        }
+
+        // 2) 使用解析器计算注册顺序
+        DependencyResolver resolver = new DependencyResolver();
+        List<Class<?>> ordered = resolver.resolveOrder(candidates);
+
+        // 3) 按顺序注册（无法排序的已被拼接在 ordered 末尾）
+        for (Class<?> clazz : ordered) {
             registerBean(clazz);
         }
     }
