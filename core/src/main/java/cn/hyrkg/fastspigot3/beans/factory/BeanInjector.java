@@ -3,7 +3,7 @@ package cn.hyrkg.fastspigot3.beans.factory;
 import cn.hyrkg.fastspigot3.annotation.Inject;
 import cn.hyrkg.fastspigot3.annotation.Instance;
 import cn.hyrkg.fastspigot3.annotation.Autowired;
-import cn.hyrkg.fastspigot3.beans.BeanManager;
+import cn.hyrkg.fastspigot3.beans.factory.BeanFactory;
 import cn.hyrkg.fastspigot3.util.ReflectionUtils;
 import lombok.RequiredArgsConstructor;
 
@@ -19,7 +19,7 @@ import java.lang.reflect.Field;
 @RequiredArgsConstructor
 public class BeanInjector {
 
-    private final BeanManager beanManager;
+    private final BeanFactory beanManager;
 
     /**
      * 对目标对象执行注入

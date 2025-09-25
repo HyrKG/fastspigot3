@@ -1,11 +1,11 @@
 package cn.hyrkg.fastspigot3.test;
 
-import cn.hyrkg.fastspigot3.beans.BeanManager;
+import cn.hyrkg.fastspigot3.context.FastApplicationContext;
 
 public class TestMain {
 
     public static void main(String[] args) {
-        BeanManager beanManager = new BeanManager();
-        beanManager.scanAndRegister("cn.hyrkg.fastspigot3.test");
+        FastApplicationContext context = new FastApplicationContext();
+        context.scanAndRegister("cn.hyrkg.fastspigot3.test");
     }
 }
