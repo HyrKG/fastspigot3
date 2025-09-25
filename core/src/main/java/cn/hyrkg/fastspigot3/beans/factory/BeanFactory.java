@@ -1,17 +1,14 @@
 package cn.hyrkg.fastspigot3.beans.factory;
 
+import cn.hyrkg.fastspigot3.beans.factory.config.BeanDefinition;
+
 /**
  * Bean 工厂接口：定义 Bean 的创建、注册、查询与生命周期管理能力。
  */
 public interface BeanFactory {
+    Object getBean(String name);
 
-    <T> T registerBean(Class<T> clazz);
+    Object getBean(String name, Class<?> clazz);
 
-    void registerBeanInstance(Class<?> clazz, Object instance);
-
-    void unregisterBean(Class<?> clazz);
-
-    <T> T getOrRegisterBean(Class<T> clazz);
-
-    <T> T getBean(Class<T> clazz);
+    <T> T getBean(Class<T> requiredType);
 }
