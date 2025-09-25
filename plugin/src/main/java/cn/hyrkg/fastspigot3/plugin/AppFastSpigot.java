@@ -17,6 +17,8 @@ public class AppFastSpigot extends JavaPlugin {
         instance = this;
 
         beanManager = new BeanManager();
+        // 扫描并注册当前工程包下的可注入类
+        beanManager.scanAndRegister("cn.hyrkg.fastspigot3");
     }
 
 }
