@@ -1,6 +1,8 @@
 package cn.hyrkg.fastspigot3.core;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
@@ -8,6 +10,7 @@ import cn.hyrkg.fastspigot3.injector.Injector;
 import cn.hyrkg.fastspigot3.scanner.ClassScanner;
 import cn.hyrkg.fastspigot3.annotation.Inject;
 import cn.hyrkg.fastspigot3.annotation.Wire;
+ 
 
 /**
  * Bean 管理器：
@@ -18,6 +21,7 @@ import cn.hyrkg.fastspigot3.annotation.Wire;
 public class BeanManager {
 
     private HashMap<Class<?>, Object> registeredBeanMap = new HashMap<>();
+    private final ThreadLocal<Set<Class<?>>> constructing = ThreadLocal.withInitial(HashSet::new);
     private final Injector injector = new Injector(this);
 
 
@@ -34,7 +38,7 @@ public class BeanManager {
             unregisterBean(clazz, registeredBeanMap.get(clazz));
         }
         try {
-            T instance = createInstance(clazz);
+            T instance = createGuarded(clazz);
             registeredBeanMap.put(clazz, instance);
             // 对新注册的 Bean 立即执行注入
             injector.injectInto(instance);
@@ -87,6 +91,38 @@ public class BeanManager {
     }
 
     /**
+     * 带循环依赖检测的创建：检测当前构造栈是否已包含该类型。
+     */
+    private <T> T createGuarded(Class<T> clazz) throws ReflectiveOperationException {
+        Set<Class<?>> stack = constructing.get();
+        if (stack.contains(clazz)) {
+            throw new RuntimeException("Circular dependency detected while constructing: " + clazz.getName());
+        }
+        stack.add(clazz);
+        try {
+            T instance = createInstance(clazz);
+            return instance;
+        } finally {
+            stack.remove(clazz);
+        }
+    }
+
+    /**
+     * 供 @Inject 使用：
+     * - 始终创建新实例，注册到容器，并执行依赖注入
+     */
+    public <T> T resolveForInject(Class<T> depType) {
+        try {
+            T created = createGuarded(depType);
+            registerBeanInstance(depType, created);
+            injector.injectInto(created);
+            return created;
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Failed to resolve dependency for inject: " + depType.getName(), e);
+        }
+    }
+
+    /**
      * 将目标对象执行一次注入（不注册为 Bean）。
      */
     /**
@@ -113,6 +149,7 @@ public class BeanManager {
             if (registeredBeanMap.containsKey(clazz)) {
                 continue;
             }
+            // 默认自动注册可注入的类
             registerBean(clazz);
         }
     }

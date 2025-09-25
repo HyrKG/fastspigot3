@@ -59,20 +59,14 @@ public class Injector {
             Object dependency = beanManager.getBean(dependencyType);
 
 			// 只有 @Inject 才会在缺失时创建；@Wire 仅连接已有 Bean
-			if (dependency == null && hasInject) {
-				try {
-					dependency = dependencyType.getDeclaredConstructor().newInstance();
-					beanManager.registerBeanInstance(dependencyType, dependency);
-					injectInto(dependency);
-				} catch (ReflectiveOperationException e) {
-					throw new RuntimeException("Failed to create dependency: " + dependencyType.getName(), e);
-				}
+            if (dependency == null && hasInject) {
+                dependency = beanManager.resolveForInject(dependencyType);
 			}
 
-			// 对于 @Wire，如果容器中没有该 Bean，则抛出异常
-			if (dependency == null && hasWire) {
-				throw new RuntimeException("Missing required wired bean: " + dependencyType.getName() + " for field '" + field.getName() + "' in " + clazz.getName());
-			}
+            // 对于 @Wire，如果容器中没有该 Bean，则抛出异常（不创建）
+            if (dependency == null && hasWire) {
+                throw new RuntimeException("Missing required wired bean: " + dependencyType.getName() + " for field '" + field.getName() + "' in " + clazz.getName());
+            }
 
             try {
                 boolean accessible = field.isAccessible();
