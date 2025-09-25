@@ -5,8 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import cn.hyrkg.fastspigot3.injector.Injector;
- 
- 
+
 
 /**
  * Bean 管理器：
@@ -16,31 +15,24 @@ import cn.hyrkg.fastspigot3.injector.Injector;
  */
 public class BeanManager {
 
-    private HashMap<Class<?>, Object> registeredBeanMap = new HashMap<>();
-    private final ThreadLocal<Set<Class<?>>> constructing = ThreadLocal.withInitial(HashSet::new);
-    private final Injector injector = new Injector(this);
-    private final LifecycleInvoker lifecycle = new LifecycleInvoker();
+    private final BeanFactory factory = new BeanFactory(this); // Bean 工厂
+    private final Injector injector = new Injector(this); // 依赖注入器
+    private final LifecycleInvoker lifecycle = new LifecycleInvoker(); // 生命周期回调器
 
+    private HashMap<Class<?>, Object> registeredBeanMap = new HashMap<>(); // 注册的Bean映射
+    private final ThreadLocal<Set<Class<?>>> constructing = ThreadLocal.withInitial(HashSet::new); // 构造栈，用于检测循环依赖，避免无限递归
 
     /**
-     * 注册指定类型的 Bean：
-     * <ul>
-     * 	<li>如已存在相同类型，则先卸载旧实例</li>
-     * 	<li>使用无参构造创建实例，缓存到容器</li>
-     * 	<li>创建完成后立即执行依赖注入</li>
-     * </ul>
+     * 注册指定类型的 Bean
      */
-    public <T> void registerBean(Class<T> clazz) {
-        if (registeredBeanMap.containsKey(clazz)) {
-            unregisterBean(clazz, registeredBeanMap.get(clazz));
-        }
+    public <T> T registerBean(Class<T> clazz) {
         try {
             T instance = createGuarded(clazz);
-            registeredBeanMap.put(clazz, instance);
-            // 对新注册的 Bean 立即执行注入
+            lifecycle.invokeCreate(instance);
+            registerBeanInstance(clazz, instance);
             injector.injectInto(instance);
-            // 注入完成后触发 @OnReady
             lifecycle.invokeReady(instance);
+            return instance;
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Failed to instantiate bean: " + clazz.getName(), e);
         }
@@ -50,44 +42,36 @@ public class BeanManager {
      * 以给定实例注册 Bean（跳过构造创建流程），适用于外部已构建好的对象。
      */
     public void registerBeanInstance(Class<?> clazz, Object instance) {
-        if (registeredBeanMap.containsKey(clazz)) {
-            unregisterBean(clazz, registeredBeanMap.get(clazz));
-        }
+        unregisterBean(clazz);
         registeredBeanMap.put(clazz, instance);
     }
 
     /**
      * 卸载指定类型的 Bean（忽略传入实例，仅根据类型移除）。
      */
-    public void unregisterBean(Class<?> clazz, Object bean) {
-        registeredBeanMap.remove(clazz);
-    }
-
-    /**
-     * 卸载指定类型的 Bean。
-     */
     public void unregisterBean(Class<?> clazz) {
         registeredBeanMap.remove(clazz);
     }
 
-    @SuppressWarnings("unchecked")
-    /**
-     * 获取指定类型的 Bean，不存在则返回 null。
-     */
+    public <T> T getOrRegisterBean(Class<T> clazz) {
+        T bean = getBean(clazz);
+        if (bean == null) {
+            bean = registerBean(clazz);
+        }
+        return bean;
+    }
+
     public <T> T getBean(Class<T> clazz) {
         Object instance = registeredBeanMap.get(clazz);
         if (instance == null) {
             return null;
         }
+        if (!clazz.isInstance(instance)) {
+            throw new RuntimeException("Registered bean is not of the requested type: " + clazz.getName());
+        }
         return (T) instance;
     }
 
-    /**
-     * 通过无参构造创建实例。
-     */
-    private <T> T createInstance(Class<T> clazz) throws ReflectiveOperationException {
-        return clazz.getDeclaredConstructor().newInstance();
-    }
 
     /**
      * 带循环依赖检测的创建：检测当前构造栈是否已包含该类型。
@@ -99,47 +83,11 @@ public class BeanManager {
         }
         stack.add(clazz);
         try {
-            T instance = createInstance(clazz);
-            // 构造完成后触发 @OnCreate
-            lifecycle.invokeCreate(instance);
+            T instance = factory.createBean(clazz);
             return instance;
         } finally {
             stack.remove(clazz);
         }
-    }
-
-    /**
-     * 反射调用 @OnCreate 标注的无参方法。
-     */
-    
-
-    /**
-     * 供 @Inject 使用：
-     * - 始终创建新实例，注册到容器，并执行依赖注入
-     */
-    public <T> T resolveForInject(Class<T> depType) {
-        try {
-            T created = createGuarded(depType);
-            registerBeanInstance(depType, created);
-        injector.injectInto(created);
-        lifecycle.invokeReady(created);
-            return created;
-        } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Failed to resolve dependency for inject: " + depType.getName(), e);
-        }
-    }
-
-    /**
-     * 将目标对象执行一次注入（不注册为 Bean）。
-     */
-    /**
-     * 对外提供一次性注入能力：不注册目标对象，仅执行依赖注入/连接。
-     */
-    public void wireInto(Object target) {
-        // 对外部传入但未由容器构造的对象，也触发一次 @OnCreate
-        lifecycle.invokeCreate(target);
-        injector.injectInto(target);
-        lifecycle.invokeReady(target);
     }
 
     /**
@@ -152,18 +100,13 @@ public class BeanManager {
     public void scanAndRegister(String basePackage) {
         ScanService scan = new ScanService();
         for (Class<?> clazz : scan.scan(basePackage)) {
-            if (!scan.isRegistrable(clazz)) {
+            if (registeredBeanMap.containsKey(clazz)) {
                 continue;
             }
-            if (registeredBeanMap.containsKey(clazz)) {
+            if (!scan.isRegistrable(clazz)) {
                 continue;
             }
             registerBean(clazz);
         }
     }
-
-    /**
-     * 判定一个类是否可被容器自动注册。
-     */
-    // isRegistrable 已迁移至 ScanService
 }
