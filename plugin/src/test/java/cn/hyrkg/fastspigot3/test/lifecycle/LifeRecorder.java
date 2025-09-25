@@ -1,4 +1,4 @@
-package cn.hyrkg.fastspigot3.plugin.lifecycle;
+package cn.hyrkg.fastspigot3.test.lifecycle;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,7 +9,7 @@ public class LifeRecorder {
     private static final List<String> EVENTS = new ArrayList<>();
 
     public static void record(String msg) {
-        EVENTS.add(msg);
+        System.out.println(msg);
     }
 
     public static List<String> events() {
