@@ -5,11 +5,12 @@ import cn.hyrkg.fastspigot3.framework.annotation.Component;
 import cn.hyrkg.fastspigot3.framework.annotation.lifecycle.OnReady;
 
 @Component
-public class TestComponent {
+public class Order2Test {
+    @Autowired
+    private OrderTest component;
 
     @OnReady
-    public void hello() {
-        System.out.println("TestComponent: onReady");
+    public void onReady() {
+        System.out.println("OrderTest2:onReady->component=" + (component != null));
     }
-
 }
