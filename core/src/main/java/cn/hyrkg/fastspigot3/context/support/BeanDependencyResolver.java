@@ -3,6 +3,7 @@ package cn.hyrkg.fastspigot3.context.support;
 import cn.hyrkg.fastspigot3.context.annotation.Autowired;
 import cn.hyrkg.fastspigot3.context.annotation.Inject;
 import cn.hyrkg.fastspigot3.context.annotation.processor.ProcessBeanForAnnotation;
+import cn.hyrkg.fastspigot3.stereotype.Component;
 import cn.hyrkg.fastspigot3.util.ReflectionUtils;
 
 import java.util.ArrayDeque;
@@ -31,13 +32,20 @@ public final class BeanDependencyResolver {
         // 使用 LinkedHash* 保持确定性顺序（与 candidates 顺序一致）
         Set<Class<?>> candidateSet = new LinkedHashSet<>(candidates);
         
-        // 分离 @Processor 类和普通类
-        List<Class<?>> processorClasses = new ArrayList<>();
+        // 分离 @Processor 类和普通类，特别处理 Component 处理器
+        List<Class<?>> componentProcessorClasses = new ArrayList<>();
+        List<Class<?>> otherProcessorClasses = new ArrayList<>();
         List<Class<?>> regularClasses = new ArrayList<>();
         
         for (Class<?> clazz : candidates) {
             if (clazz.isAnnotationPresent(ProcessBeanForAnnotation.class)) {
-                processorClasses.add(clazz);
+                ProcessBeanForAnnotation annotation = clazz.getAnnotation(ProcessBeanForAnnotation.class);
+                if (annotation.value() == Component.class) {
+                    // 特殊处理：Component 处理器排到最前面
+                    componentProcessorClasses.add(clazz);
+                } else {
+                    otherProcessorClasses.add(clazz);
+                }
             } else {
                 regularClasses.add(clazz);
             }
@@ -71,17 +79,24 @@ public final class BeanDependencyResolver {
             }
         }
 
-        // 3) Kahn 拓扑排序：优先处理 @Processor 类，然后处理普通类
+        // 3) Kahn 拓扑排序：优先处理 Component 处理器，然后其他处理器，最后普通类
         Queue<Class<?>> queue = new ArrayDeque<>();
         
-        // 首先将入度为0的 @Processor 类入队
-        for (Class<?> c : processorClasses) {
+        // 首先将入度为0的 Component 处理器入队（最高优先级）
+        for (Class<?> c : componentProcessorClasses) {
             if (indegree.get(c) == 0) {
                 queue.add(c);
             }
         }
         
-        // 然后将入度为0的普通类入队
+        // 然后将入度为0的其他处理器入队
+        for (Class<?> c : otherProcessorClasses) {
+            if (indegree.get(c) == 0) {
+                queue.add(c);
+            }
+        }
+        
+        // 最后将入度为0的普通类入队
         for (Class<?> c : regularClasses) {
             if (indegree.get(c) == 0) {
                 queue.add(c);
@@ -96,11 +111,18 @@ public final class BeanDependencyResolver {
                 int deg = indegree.get(next) - 1;
                 indegree.put(next, deg);
                 if (deg == 0) {
-                    // 优先加入 @Processor 类
+                    // 根据优先级决定插入位置
                     if (next.isAnnotationPresent(ProcessBeanForAnnotation.class)) {
-                        // 插入到队列前面（优先处理）
-                        ((ArrayDeque<Class<?>>) queue).addFirst(next);
+                        ProcessBeanForAnnotation annotation = next.getAnnotation(ProcessBeanForAnnotation.class);
+                        if (annotation.value() == Component.class) {
+                            // Component 处理器：插入到队列最前面（最高优先级）
+                            ((ArrayDeque<Class<?>>) queue).addFirst(next);
+                        } else {
+                            // 其他处理器：插入到队列前面（高优先级）
+                            ((ArrayDeque<Class<?>>) queue).addFirst(next);
+                        }
                     } else {
+                        // 普通类：插入到队列后面（低优先级）
                         queue.add(next);
                     }
                 }
