@@ -33,7 +33,7 @@ public class DefaultBeanFactory implements BeanFactory, BeanRegistry, BeanDefini
     public void registerBeanDefinition(BeanDefinition beanDefinition) {
         String beanName = beanDefinition.getBeanName();
         if (beanDefinitionMap.containsKey(beanName)) {
-            throw new IllegalArgumentException("Bean name already exists: " + beanName);
+            unregisterBean(beanName);
         }
         beanDefinitionMap.put(beanName, beanDefinition);
     }
@@ -60,11 +60,23 @@ public class DefaultBeanFactory implements BeanFactory, BeanRegistry, BeanDefini
             beanDefinition.setBeanName(name);
         }
         if (singletonObjects.containsKey(name)) {
-            throw new IllegalArgumentException("Bean instance already exists: " + name);
+            unregisterBean(name);
         }
         registerBeanDefinition(beanDefinition);
         singletonObjects.put(name, instance);
         return beanDefinition;
+    }
+
+    public void unregisterBean(String name) {
+        beanDefinitionMap.remove(name);
+        Object bean = singletonObjects.remove(name);
+        if (bean != null) {
+            try {
+                lifecycle.invokeDestroy(bean);
+            } catch (ReflectiveOperationException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     public Object loadBean(String name) {
