@@ -129,6 +129,9 @@ public class DefaultBeanFactory implements BeanFactory, BeanRegistry, BeanDefini
             for (Annotation annotation : clazz.getAnnotations()) {
                 if (processorBeanNameMap.containsKey(annotation.annotationType())) {
                     String processorBeanName = processorBeanNameMap.get(annotation.annotationType());
+                    if (processorBeanName.equals(definition.getBeanName())) {
+                        continue;
+                    }
                     Object processorBean = getBean(processorBeanName);
                     if (processorBean instanceof BeanAnnotationProcessor) {
                         ((BeanAnnotationProcessor) processorBean).postProcess(annotation, instance);
