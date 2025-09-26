@@ -7,6 +7,7 @@ import cn.hyrkg.fastspigot3.context.annotation.AnnotationComponentClassScanner;
 import cn.hyrkg.fastspigot3.context.support.BeanDependencyResolver;
 import cn.hyrkg.fastspigot3.scanner.Scanner;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -18,6 +19,14 @@ public class ApplicationContext implements BeanFactory {
     private final DefaultBeanFactory beanFactory = new DefaultBeanFactory();
     private final Scanner beanScanner = new AnnotationComponentClassScanner();
     private final BeanDependencyResolver dependencyResolver = new BeanDependencyResolver();
+
+    public void unregisterBeanInstance(Class<?> clazz) {
+        beanFactory.unregisterBean(clazz);
+    }
+
+    public void registerBeanInstance(Class<?> clazz, Object instance) {
+        beanFactory.registerBeanInstance(clazz, instance);
+    }
 
     public void scanAndRegister(String basePackage) {
         scanAndRegister(basePackage, null);
@@ -34,6 +43,27 @@ public class ApplicationContext implements BeanFactory {
         for (Class<?> clazz : componentClass) {
             BeanDefinition beanDefinition = beanFactory.registerBean(clazz);
             beanFactory.loadBean(beanDefinition.getBeanName());
+        }
+    }
+
+    public void scanAndUnregister(String basePackage) {
+        scanAndUnregister(basePackage, null);
+    }
+
+    public void scanAndUnregister(String basePackage, Class<?> anchorClass) {
+        List<Class<?>> componentClass = null;
+        if (anchorClass == null) {
+            componentClass = beanScanner.scan(basePackage);
+        } else {
+            componentClass = beanScanner.scan(basePackage, anchorClass);
+        }
+        componentClass = dependencyResolver.resolveOrder(componentClass);
+        Collections.reverse(componentClass);
+        for (Class<?> clazz : componentClass) {
+            String beanName = beanFactory.createBeanDefinition(clazz).getBeanName();
+            if (beanName != null) {
+                beanFactory.unregisterBean(beanName);
+            }
         }
     }
 

@@ -18,4 +18,9 @@ public class AppFastSpigot extends JavaPlugin {
         applicationContext.scanAndRegister(getClass().getPackage().getName(), getClass());
     }
 
+
+    @Override
+    public void onDisable() {
+        applicationContext.scanAndUnregister(getClass().getPackage().getName(), getClass());
+    }
 }

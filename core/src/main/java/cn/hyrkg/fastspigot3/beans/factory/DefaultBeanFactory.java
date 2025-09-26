@@ -10,6 +10,7 @@ import cn.hyrkg.fastspigot3.context.annotation.processor.ProcessBeanForAnnotatio
 import cn.hyrkg.fastspigot3.injector.FieldInjector;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -107,6 +108,11 @@ public class DefaultBeanFactory implements BeanFactory, BeanRegistry, BeanDefini
         }
     }
 
+    public void unregisterBean(Class<?> clazz) {
+        BeanDefinition definition = createBeanDefinition(clazz);
+        unregisterBean(definition.getBeanName());
+    }
+
     public Object loadBean(String name) {
         return getBean(name);
     }
@@ -120,8 +126,13 @@ public class DefaultBeanFactory implements BeanFactory, BeanRegistry, BeanDefini
         if (definition == null) {
             throw new IllegalArgumentException("No such bean definition: " + beanName);
         }
-        instance = createBean(definition);
-        singletonObjects.put(beanName, instance);
+        try {
+            instance = createBean(definition);
+            singletonObjects.put(beanName, instance);
+            injectBeanInstance(definition, instance);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Failed to create bean: " + beanName, e);
+        }
         return instance;
     }
 
@@ -145,31 +156,10 @@ public class DefaultBeanFactory implements BeanFactory, BeanRegistry, BeanDefini
         return null;
     }
 
-    private Object createBean(BeanDefinition definition) {
+    private Object createBean(BeanDefinition definition) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         Class<?> clazz = definition.getBeanClass();
-        try {
-            Object instance = clazz.getConstructor().newInstance();
-            lifecycle.invokeCreate(instance);
-            injector.inject(instance, this, this);
-            lifecycle.invokeReady(instance);
-
-            // 处理自定义注解
-            for (Annotation annotation : clazz.getAnnotations()) {
-                if (processorBeanNameMap.containsKey(annotation.annotationType())) {
-                    String processorBeanName = processorBeanNameMap.get(annotation.annotationType());
-                    if (processorBeanName.equals(definition.getBeanName())) {
-                        continue;
-                    }
-                    Object processorBean = getBean(processorBeanName);
-                    if (processorBean instanceof BeanAnnotationProcessor) {
-                        ((BeanAnnotationProcessor) processorBean).postProcess(annotation, instance);
-                    }
-                }
-            }
-            return instance;
-        } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Failed to instantiate bean: " + clazz.getName(), e);
-        }
+        Object instance = clazz.getConstructor().newInstance();
+        return instance;
     }
 
     @Override
