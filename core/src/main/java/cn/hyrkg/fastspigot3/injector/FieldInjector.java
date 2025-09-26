@@ -37,8 +37,10 @@ public class FieldInjector implements Injector {
                 } else {
                     Object injectBean;
                     if (inject.value().isEmpty()) {
+                        registry.registerBean(annotatedField.getType());
                         injectBean = factory.getBean(annotatedField.getType());
                     } else {
+                        registry.registerBean(inject.value(), annotatedField.getType());
                         injectBean = factory.getBean(inject.value(), annotatedField.getType());
                     }
                     ReflectionUtils.setFieldValue(annotatedField, bean, injectBean);

@@ -41,7 +41,15 @@ public class DefaultBeanFactory implements BeanFactory, BeanRegistry, BeanDefini
 
     @Override
     public BeanDefinition registerBean(Class<?> clazz) {
+        return registerBean(null, clazz);
+    }
+
+    @Override
+    public BeanDefinition registerBean(String name, Class<?> clazz) {
         BeanDefinition bean = createBeanDefinition(clazz);
+        if (name != null && !name.isEmpty()) {
+            bean.setBeanName(name);
+        }
         registerBeanDefinition(bean);
         if (clazz.isAnnotationPresent(ProcessBeanForAnnotation.class)) {
             processorBeanNameMap.put(clazz.getAnnotation(ProcessBeanForAnnotation.class).value(), bean.getBeanName());
@@ -149,7 +157,7 @@ public class DefaultBeanFactory implements BeanFactory, BeanRegistry, BeanDefini
     public <T> T getBean(Class<T> requiredType) {
         for (Map.Entry<String, BeanDefinition> entry : beanDefinitionMap.entrySet()) {
             BeanDefinition definition = entry.getValue();
-            if (definition.getBeanClass().isAssignableFrom(requiredType)) {
+            if (requiredType.isAssignableFrom(definition.getBeanClass())) {
                 return requiredType.cast(getBean(entry.getKey()));
             }
         }
