@@ -25,8 +25,6 @@ public class AikarCommandProcessor implements BeanAnnotationProcessor<CommandAli
     @Override
     public void postProcess(CommandAlias annotation, Object bean) {
         JavaPlugin plugin = PluginUtils.getPluginFromObject(bean);
-        System.out.println(plugin.hashCode());
-        System.out.println("Registering command for plugin: " + (plugin != null ? plugin.getName() : "null") + ", bean: " + bean.getClass().getName());
         if (plugin == null) {
             throw new RuntimeException("Cannot find plugin for command class: " + bean.getClass().getName());
         }
@@ -50,7 +48,6 @@ public class AikarCommandProcessor implements BeanAnnotationProcessor<CommandAli
 
     @EventHandler
     public void onPluginDisable(PluginDisableEvent event) {
-        System.out.println("AikarCommandProcessor: Plugin disabled: " + event.getPlugin().getName());
         String pluginName = event.getPlugin().getName();
         if (pluginCommandManagers.containsKey(pluginName)) {
             BukkitCommandManager remove = pluginCommandManagers.remove(pluginName);
