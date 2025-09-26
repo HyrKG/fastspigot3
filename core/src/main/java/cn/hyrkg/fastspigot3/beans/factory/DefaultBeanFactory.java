@@ -33,7 +33,7 @@ public class DefaultBeanFactory implements BeanFactory, BeanRegistry, BeanDefini
     public void registerBeanDefinition(BeanDefinition beanDefinition) {
         String beanName = beanDefinition.getBeanName();
         if (beanDefinitionMap.containsKey(beanName)) {
-            unregisterBean(beanName);
+            throw new IllegalArgumentException("Bean name already exists: " + beanName);
         }
         beanDefinitionMap.put(beanName, beanDefinition);
     }
@@ -55,16 +55,44 @@ public class DefaultBeanFactory implements BeanFactory, BeanRegistry, BeanDefini
 
     @Override
     public BeanDefinition registerBeanInstance(String name, Class<?> clazz, Object instance) {
-        BeanDefinition beanDefinition = registerBean(clazz);
+        BeanDefinition beanDefinition = createBeanDefinition(clazz);
         if (name != null && !name.isEmpty()) {
             beanDefinition.setBeanName(name);
         }
+        name = beanDefinition.getBeanName();
         if (singletonObjects.containsKey(name)) {
-            unregisterBean(name);
+            throw new IllegalArgumentException("Bean name already exists in singleton pool: " + name);
         }
         registerBeanDefinition(beanDefinition);
         singletonObjects.put(name, instance);
+
+        try {
+            injectBeanInstance(beanDefinition, instance);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Failed to inject bean instance: " + name, e);
+        }
         return beanDefinition;
+    }
+
+    private void injectBeanInstance(BeanDefinition definition, Object instance) throws ReflectiveOperationException {
+        Class<?> clazz = definition.getBeanClass();
+        lifecycle.invokeCreate(instance);
+        injector.inject(instance, this, this);
+        lifecycle.invokeReady(instance);
+
+        // 处理自定义注解
+        for (Annotation annotation : clazz.getAnnotations()) {
+            if (processorBeanNameMap.containsKey(annotation.annotationType())) {
+                String processorBeanName = processorBeanNameMap.get(annotation.annotationType());
+                if (processorBeanName.equals(definition.getBeanName())) {
+                    continue;
+                }
+                Object processorBean = getBean(processorBeanName);
+                if (processorBean instanceof BeanAnnotationProcessor) {
+                    ((BeanAnnotationProcessor) processorBean).postProcess(annotation, instance);
+                }
+            }
+        }
     }
 
     public void unregisterBean(String name) {
