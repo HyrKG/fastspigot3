@@ -9,18 +9,14 @@ import org.bukkit.plugin.java.annotation.plugin.Plugin;
 public class AppFastSpigot extends JavaPlugin {
     @Getter
     private static AppFastSpigot instance;
-    @Getter
-    private static ApplicationContext applicationContext = new ApplicationContext();
 
     @Override
     public void onEnable() {
         instance = this;
-        applicationContext.scanAndRegister(getClass().getPackage().getName(), getClass());
     }
 
 
     @Override
     public void onDisable() {
-        applicationContext.scanAndUnregister(getClass().getPackage().getName(), getClass());
     }
 }
