@@ -9,7 +9,6 @@ import lombok.SneakyThrows;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class FastPlugin extends JavaPlugin {
-
     private Logger logger;
 
     @Getter
@@ -25,7 +24,7 @@ public class FastPlugin extends JavaPlugin {
     public void onEnable() {
         long libStartTime = System.currentTimeMillis(); //记录核心库加载开始时间
         applicationContext.scanAndRegister(AppFastSpigot.class.getPackage().getName());
-        logger = applicationContext.getBeanFactory().getBean(LoggerProcessor.class).getLogger(FastPlugin.class.getDeclaredField("logger"), this);
+        logger = applicationContext.getBeanFactory().getBean(LoggerProcessor.class).getLogger(this);
         applicationContext.setLogConsumer(it -> logger.debug(it));
 
         long pluginStartTime = System.currentTimeMillis(); //记录插件组件加载开始时间
@@ -46,5 +45,9 @@ public class FastPlugin extends JavaPlugin {
         applicationContext.getBeanFactory().unregisterBean(this);
         logger.notice(getDescription().getName() + " 关闭完成,耗时 " + (System.currentTimeMillis() - startTime) + " ms");
         applicationContext.scanAndUnregister(AppFastSpigot.class.getPackage().getName());
+    }
+
+    public Logger getFastLogger() {
+        return logger;
     }
 }

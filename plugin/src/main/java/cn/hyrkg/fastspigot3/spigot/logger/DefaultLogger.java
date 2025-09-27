@@ -8,21 +8,20 @@ import java.lang.reflect.Field;
 public class DefaultLogger implements Logger {
 
     private final JavaPlugin plugin;
-    private final Field field;
+    private final Class clazz;
     private String pluginName;
     private String path;
 
-    public DefaultLogger(JavaPlugin plugin, Field field) {
+    public DefaultLogger(JavaPlugin plugin, Class clazz) {
 
         this.plugin = plugin;
-        this.field = field;
+        this.clazz = clazz;
 
         setup();
     }
 
     private void setup() {
-        Class<?> declaringClass = field.getDeclaringClass();
-        String fullClassName = declaringClass.getName();
+        String fullClassName = clazz.getName();
         String[] parts = fullClassName.split("\\.");
 
         StringBuilder pathBuilder = new StringBuilder();
@@ -42,7 +41,7 @@ public class DefaultLogger implements Logger {
 
     @Override
     public void debug(String message) {
-        Bukkit.getConsoleSender().sendMessage(format("D", message, "§7"));
+        Bukkit.getConsoleSender().sendMessage(format("debug", message, "§7"));
     }
 
     @Override

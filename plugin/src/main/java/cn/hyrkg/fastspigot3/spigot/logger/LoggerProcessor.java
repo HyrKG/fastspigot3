@@ -20,15 +20,15 @@ public class LoggerProcessor implements FieldAnnotationProcessor<Autowired> {
     @SneakyThrows
     public ProcessorAction preProcess(Field field, Autowired annotation, Object bean) {
         if (field.getType().equals(Logger.class)) {
-            Logger logger = getLogger(field, bean);
+            Logger logger = getLogger(bean);
             ReflectionUtils.setFieldValue(field, bean, logger);
             return ProcessorAction.STOP_PROCESSING;
         }
         return ProcessorAction.CONTINUE;
     }
 
-    public Logger getLogger(Field field, Object bean) {
+    public Logger getLogger(Object bean) {
         JavaPlugin pluginFromObject = PluginUtils.getPluginFromObject(bean);
-        return new DefaultLogger(pluginFromObject, field);
+        return new DefaultLogger(pluginFromObject, bean.getClass());
     }
 }
