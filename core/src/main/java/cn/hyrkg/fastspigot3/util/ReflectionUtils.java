@@ -26,6 +26,7 @@ public class ReflectionUtils {
         }
         return annotatedFields;
     }
+    
 
     /**
      * 根据断言筛选类中的字段。
@@ -65,6 +66,8 @@ public class ReflectionUtils {
         field.setAccessible(accessible);
     }
 
+
+    
     /**
      * 读取字段值，自动处理可访问性与静态字段。
      *
@@ -210,5 +213,28 @@ public class ReflectionUtils {
         }
         
         return fields.toArray(new Field[0]);
+    }
+    
+    /**
+     * 通过字段名获取字段值，自动处理可访问性与静态字段。
+     *
+     * @param clazz     目标类
+     * @param fieldName 字段名称
+     * @param instance  所属实例，静态字段可为 {@code null}
+     * @return 字段当前值，如果字段不存在则返回null
+     * @throws IllegalAccessException 访问字段失败时抛出
+     */
+    public static Object getFieldValue(Class<?> clazz, String fieldName, Object instance) throws IllegalAccessException {
+        try {
+            Field field = clazz.getDeclaredField(fieldName);
+            return getFieldValue(field, instance);
+        } catch (NoSuchFieldException e) {
+            // 如果在当前类中找不到字段，尝试在父类中查找
+            Class<?> superClass = clazz.getSuperclass();
+            if (superClass != null && superClass != Object.class) {
+                return getFieldValue(superClass, fieldName, instance);
+            }
+            return null;
+        }
     }
 }
