@@ -75,7 +75,6 @@ public class DefaultBeanDefinitionRegistry implements BeanFactory, BeanDefinitio
         return candidates.get(0);
     }
 
-
     @Override
     public BeanDefinition registerBean(Class<?> clazz) {
         return registerBean((String) null, clazz);
@@ -149,11 +148,15 @@ public class DefaultBeanDefinitionRegistry implements BeanFactory, BeanDefinitio
     }
 
     public void unregisterBean(Object instance) {
+        String targetBeanName = null;
         for (Map.Entry<String, Object> entry : singletonObjects.entrySet()) {
-            if (entry.getValue() != instance) {
-                continue;
+            if (entry.getValue() == instance) {
+                targetBeanName = entry.getKey();
+                break;
             }
-            unregisterBean(entry.getKey());
+        }
+        if (targetBeanName != null) {
+            unregisterBean(targetBeanName);
         }
     }
 
@@ -226,7 +229,8 @@ public class DefaultBeanDefinitionRegistry implements BeanFactory, BeanDefinitio
     }
 
     @SuppressWarnings("unchecked")
-    private void processBeanAnnotationsDo(Class<?> clazz, Object instance, BiConsumer<Annotation, BeanAnnotationProcessor> consumer) throws ReflectiveOperationException {
+    private void processBeanAnnotationsDo(Class<?> clazz, Object instance,
+            BiConsumer<Annotation, BeanAnnotationProcessor> consumer) throws ReflectiveOperationException {
         for (Annotation annotation : clazz.getAnnotations()) {
             BeanAnnotationProcessor processor = getBeanAnnotationProcessor(annotation.annotationType());
             if (processor != null) {
