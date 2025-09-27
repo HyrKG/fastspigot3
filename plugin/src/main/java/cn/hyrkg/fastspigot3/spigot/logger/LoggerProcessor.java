@@ -1,7 +1,5 @@
 package cn.hyrkg.fastspigot3.spigot.logger;
 
-import cn.hyrkg.fastspigot3.beans.factory.BeanFactory;
-import cn.hyrkg.fastspigot3.beans.factory.support.BeanDefinitionRegistry;
 import cn.hyrkg.fastspigot3.context.annotation.Autowired;
 import cn.hyrkg.fastspigot3.context.annotation.processor.FieldAnnotationProcessor;
 import cn.hyrkg.fastspigot3.context.annotation.processor.ProcessFieldForAnnotation;

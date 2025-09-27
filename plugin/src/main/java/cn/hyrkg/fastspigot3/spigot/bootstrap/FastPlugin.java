@@ -1,7 +1,6 @@
 package cn.hyrkg.fastspigot3.spigot.bootstrap;
 
 import cn.hyrkg.fastspigot3.context.ApplicationContext;
-import cn.hyrkg.fastspigot3.context.annotation.Autowired;
 import cn.hyrkg.fastspigot3.spigot.AppFastSpigot;
 import cn.hyrkg.fastspigot3.spigot.logger.Logger;
 import cn.hyrkg.fastspigot3.spigot.logger.LoggerProcessor;

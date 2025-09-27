@@ -1,8 +1,8 @@
 package cn.hyrkg.fastspigot3.beans.factory;
 
 import cn.hyrkg.fastspigot3.beans.factory.config.BeanDefinition;
-import cn.hyrkg.fastspigot3.beans.factory.support.BeanProcessorRegistry;
 import cn.hyrkg.fastspigot3.beans.factory.support.BeanDefinitionRegistry;
+import cn.hyrkg.fastspigot3.beans.factory.support.BeanProcessorRegistry;
 import cn.hyrkg.fastspigot3.context.annotation.AnnotationBeanNameGenerator;
 import cn.hyrkg.fastspigot3.context.annotation.BeanLifecycleProcessor;
 import cn.hyrkg.fastspigot3.context.annotation.processor.BeanAnnotationProcessor;
@@ -14,11 +14,7 @@ import cn.hyrkg.fastspigot3.util.ReflectionUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Comparator;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 /**

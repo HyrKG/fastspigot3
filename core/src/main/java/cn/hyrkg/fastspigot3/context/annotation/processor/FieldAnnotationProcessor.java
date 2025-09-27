@@ -1,8 +1,5 @@
 package cn.hyrkg.fastspigot3.context.annotation.processor;
 
-import cn.hyrkg.fastspigot3.beans.factory.BeanFactory;
-import cn.hyrkg.fastspigot3.beans.factory.support.BeanDefinitionRegistry;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
