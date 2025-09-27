@@ -1,7 +1,7 @@
 package cn.hyrkg.fastspigot3.context.annotation.processor;
 
 import cn.hyrkg.fastspigot3.beans.factory.BeanFactory;
-import cn.hyrkg.fastspigot3.beans.factory.support.BeanRegistry;
+import cn.hyrkg.fastspigot3.beans.factory.support.BeanDefinitionRegistry;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -11,7 +11,13 @@ import java.lang.reflect.Field;
  */
 public interface FieldAnnotationProcessor<T extends Annotation> {
 
-    void postProcess(Field field, T annotation, Object bean, BeanFactory factory, BeanRegistry registry);
+    /**
+     * @return 返回true表示拦截该字段其他注入，false表示不拦截
+     */
+    ProcessorAction preProcess(Field field, T annotation, Object bean);
 
+    default void postProcess(Field field, T annotation, Object bean) {
+
+    }
 }
 
