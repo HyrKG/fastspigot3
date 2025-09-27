@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Comparator;
+import java.util.function.BiConsumer;
 
 /**
  * 默认 Bean 工厂实现：负责 Bean 的创建、注册、查询、依赖注入与生命周期回调。
@@ -223,16 +224,17 @@ public class DefaultBeanDefinitionRegistry implements BeanFactory, BeanDefinitio
         Class<?> clazz = definition.getBeanClass();
         lifecycle.invokeCreate(instance);
         fieldInjector.inject(instance, this, this, this);
+        processBeanAnnotationsDo(clazz, instance, (anno, processor) -> processor.preProcess(anno, instance));
         lifecycle.invokeReady(instance);
-        processBeanAnnotations(clazz, instance);
+        processBeanAnnotationsDo(clazz, instance, (anno, processor) -> processor.postProcess(anno, instance));
     }
 
     @SuppressWarnings("unchecked")
-    private void processBeanAnnotations(Class<?> clazz, Object instance) {
+    private void processBeanAnnotationsDo(Class<?> clazz, Object instance, BiConsumer<Annotation, BeanAnnotationProcessor> consumer) throws ReflectiveOperationException {
         for (Annotation annotation : clazz.getAnnotations()) {
             BeanAnnotationProcessor processor = getBeanAnnotationProcessor(annotation.annotationType());
             if (processor != null) {
-                processor.postProcess(annotation, instance);
+                consumer.accept(annotation, processor);
             }
         }
     }
