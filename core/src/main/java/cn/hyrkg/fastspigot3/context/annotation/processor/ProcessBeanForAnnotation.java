@@ -10,6 +10,9 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ProcessBeanForAnnotation {
 
-    Class<? extends Annotation> value();
+    /**
+     * 要处理的注解类型，如果不指定（默认值为Annotation.class），则表示处理所有Bean。
+     */
+    Class<? extends Annotation> value() default Annotation.class;
 
 }

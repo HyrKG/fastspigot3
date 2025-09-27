@@ -214,9 +214,7 @@ public class DefaultBeanDefinitionRegistry implements BeanFactory, BeanDefinitio
 
     private Object createBean(BeanDefinition definition)
             throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        Class<?> clazz = definition.getBeanClass();
-        Object instance = clazz.getConstructor().newInstance();
-        return instance;
+        return definition.getBeanClass().getConstructor().newInstance();
     }
 
     private void injectBeanInstance(BeanDefinition definition, Object instance) throws ReflectiveOperationException {
@@ -230,12 +228,16 @@ public class DefaultBeanDefinitionRegistry implements BeanFactory, BeanDefinitio
 
     @SuppressWarnings("unchecked")
     private void processBeanAnnotationsDo(Class<?> clazz, Object instance,
-            BiConsumer<Annotation, BeanAnnotationProcessor> consumer) throws ReflectiveOperationException {
+                                          BiConsumer<Annotation, BeanAnnotationProcessor> consumer) throws ReflectiveOperationException {
         for (Annotation annotation : clazz.getAnnotations()) {
             BeanAnnotationProcessor processor = getBeanAnnotationProcessor(annotation.annotationType());
             if (processor != null) {
                 consumer.accept(annotation, processor);
             }
+        }
+        BeanAnnotationProcessor beanAnnotationProcessor = getBeanAnnotationProcessor(Annotation.class); //处理所有bean的处理器
+        if (beanAnnotationProcessor != null) {
+            consumer.accept(null, beanAnnotationProcessor);
         }
     }
 
