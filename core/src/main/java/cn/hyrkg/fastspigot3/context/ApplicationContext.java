@@ -1,8 +1,8 @@
 package cn.hyrkg.fastspigot3.context;
 
 import cn.hyrkg.fastspigot3.beans.factory.BeanFactory;
-import cn.hyrkg.fastspigot3.beans.factory.config.BeanDefinition;
 import cn.hyrkg.fastspigot3.beans.factory.DefaultBeanFactory;
+import cn.hyrkg.fastspigot3.beans.factory.config.BeanDefinition;
 import cn.hyrkg.fastspigot3.context.annotation.AnnotationComponentClassScanner;
 import cn.hyrkg.fastspigot3.context.support.BeanDependencyResolver;
 import cn.hyrkg.fastspigot3.scanner.Scanner;

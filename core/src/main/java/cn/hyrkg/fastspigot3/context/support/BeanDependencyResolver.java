@@ -7,15 +7,7 @@ import cn.hyrkg.fastspigot3.context.annotation.processor.ProcessFieldForAnnotati
 import cn.hyrkg.fastspigot3.stereotype.Component;
 import cn.hyrkg.fastspigot3.util.ReflectionUtils;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**

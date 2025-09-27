@@ -1,10 +1,6 @@
 package cn.hyrkg.fastspigot3.context.annotation.processor;
 
-import java.lang.annotation.Annotation;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * 组件解析器：标记一个类为特定组件类型的解析器
