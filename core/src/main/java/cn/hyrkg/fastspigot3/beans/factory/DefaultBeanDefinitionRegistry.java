@@ -57,6 +57,11 @@ public class DefaultBeanDefinitionRegistry implements BeanFactory, BeanDefinitio
     }
 
     @Override
+    public BeanDefinition getBeanDefinition(String name) {
+        return beanDefinitionMap.get(name);
+    }
+
+    @Override
     public BeanDefinition getBeanDefinition(Class<?> clazz) {
         List<BeanDefinition> candidates = new ArrayList<>();
         for (Map.Entry<String, BeanDefinition> entry : beanDefinitionMap.entrySet()) {
@@ -72,6 +77,7 @@ public class DefaultBeanDefinitionRegistry implements BeanFactory, BeanDefinitio
                 .getTypeDistance(clazz, def.getBeanClass())));
         return candidates.get(0);
     }
+
 
     @Override
     public BeanDefinition registerBean(Class<?> clazz) {
