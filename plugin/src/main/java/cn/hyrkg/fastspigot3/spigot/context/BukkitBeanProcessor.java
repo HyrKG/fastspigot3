@@ -12,16 +12,16 @@ import org.bukkit.plugin.java.JavaPlugin;
  * Bukkit组件处理器：用于处理被@Component注解标记的类
  */
 @Component
-@ProcessBeanForAnnotation(Component.class)
-public class BukkitBeanProcessor implements BeanAnnotationProcessor<Component> {
+@ProcessBeanForAnnotation()
+public class BukkitBeanProcessor implements BeanAnnotationProcessor {
 
     @Override
-    public void postProcess(Component annotation, Object bean) {
+    public void postProcess(Object annotation, Object bean) {
         JavaPlugin plugin = PluginUtils.getPluginFromObject(bean);
-        if (plugin != null) {
-            if (bean instanceof Listener) {
-                Bukkit.getPluginManager().registerEvents((Listener) bean, plugin);
-            }
+        if (bean instanceof Listener) {
+            Bukkit.getPluginManager().registerEvents((Listener) bean, plugin);
         }
     }
+
+
 }
