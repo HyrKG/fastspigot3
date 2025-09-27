@@ -27,6 +27,7 @@ public class FastPlugin extends JavaPlugin {
         long libStartTime = System.currentTimeMillis(); //记录核心库加载开始时间
         applicationContext.scanAndRegister(AppFastSpigot.class.getPackage().getName());
         logger = applicationContext.getBeanFactory().getBean(LoggerProcessor.class).getLogger(FastPlugin.class.getDeclaredField("logger"), this);
+        applicationContext.setLogConsumer(it -> logger.debug(it));
 
         long pluginStartTime = System.currentTimeMillis(); //记录插件组件加载开始时间
         logger.notice("正在加载" + getDescription().getName() + " v" + getDescription().getVersion() + "...");

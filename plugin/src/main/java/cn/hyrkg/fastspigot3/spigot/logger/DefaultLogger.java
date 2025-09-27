@@ -42,7 +42,7 @@ public class DefaultLogger implements Logger {
 
     @Override
     public void debug(String message) {
-        Bukkit.getConsoleSender().sendMessage(format("D", message, "§f"));
+        Bukkit.getConsoleSender().sendMessage(format("D", message, "§7"));
     }
 
     @Override
