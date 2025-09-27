@@ -3,8 +3,6 @@ package cn.hyrkg.fastspigot3.spigot.logger;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.lang.reflect.Field;
-
 public class DefaultLogger implements Logger {
 
     private final JavaPlugin plugin;

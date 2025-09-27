@@ -3,17 +3,14 @@ package cn.hyrkg.fastspigot3.spigot.command;
 import cn.hyrkg.fastspigot3.context.annotation.Autowired;
 import cn.hyrkg.fastspigot3.context.annotation.processor.BeanAnnotationProcessor;
 import cn.hyrkg.fastspigot3.context.annotation.processor.ProcessBeanForAnnotation;
-import cn.hyrkg.fastspigot3.spigot.bootstrap.FastPlugin;
 import cn.hyrkg.fastspigot3.spigot.logger.LoggerProcessor;
 import cn.hyrkg.fastspigot3.spigot.util.PluginUtils;
 import cn.hyrkg.fastspigot3.stereotype.Component;
-import cn.hyrkg.fastspigot3.util.ReflectionUtils;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.BukkitCommandManager;
 import co.aikar.commands.Locales;
 import co.aikar.commands.RegisteredCommand;
 import co.aikar.commands.annotation.CommandAlias;
-import com.google.common.collect.Multimap;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginDisableEvent;
@@ -21,7 +18,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Component
