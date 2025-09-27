@@ -64,7 +64,7 @@ public class DefaultLogger implements Logger {
 
 
     private String format(String prefix, String message, String color) {
-        String format = "§7[%s] %s(%s)%s: %s§r";
+        String format = " §7[ %s ]  %s(%s)%s: %s§r";
         return String.format(format, pluginName, color, prefix, path, message);
     }
 
