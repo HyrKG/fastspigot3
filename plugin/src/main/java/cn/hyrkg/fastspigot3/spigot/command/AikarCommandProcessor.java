@@ -32,6 +32,11 @@ public class AikarCommandProcessor implements BeanAnnotationProcessor<CommandAli
             throw new RuntimeException("Bean is not an instance of BaseCommand: " + bean.getClass().getName());
         }
         BukkitCommandManager bukkitCommandManager = getBukkitCommandManager(plugin);
+
+        if (bean instanceof AikarCommandAware) {
+            ((AikarCommandAware) bean).configureCommandManager(bukkitCommandManager);
+        }
+
         bukkitCommandManager.registerCommand((BaseCommand) bean);
     }
 
