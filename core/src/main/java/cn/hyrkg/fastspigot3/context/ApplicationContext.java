@@ -1,7 +1,6 @@
 package cn.hyrkg.fastspigot3.context;
 
-import cn.hyrkg.fastspigot3.beans.factory.BeanFactory;
-import cn.hyrkg.fastspigot3.beans.factory.DefaultBeanFactory;
+import cn.hyrkg.fastspigot3.beans.factory.DefaultBeanDefinitionRegistry;
 import cn.hyrkg.fastspigot3.beans.factory.config.BeanDefinition;
 import cn.hyrkg.fastspigot3.context.annotation.AnnotationComponentClassScanner;
 import cn.hyrkg.fastspigot3.context.support.BeanDependencyResolver;
@@ -14,19 +13,11 @@ import java.util.List;
  * 应用上下文（门面）：对外提供统一的扫描、装配与 Bean 访问能力。
  * 内部组合 DefaultBeanFactory，负责底层 Bean 的创建与注入。
  */
-public class ApplicationContext implements BeanFactory {
+public class ApplicationContext {
 
-    private final DefaultBeanFactory beanFactory = new DefaultBeanFactory();
+    private final DefaultBeanDefinitionRegistry beanFactory = new DefaultBeanDefinitionRegistry();
     private final Scanner beanScanner = new AnnotationComponentClassScanner();
     private final BeanDependencyResolver dependencyResolver = new BeanDependencyResolver();
-
-    public void unregisterBeanInstance(Class<?> clazz) {
-        beanFactory.unregisterBean(clazz);
-    }
-
-    public void registerBeanInstance(Class<?> clazz, Object instance) {
-        beanFactory.registerBeanInstance(clazz, instance);
-    }
 
     public void scanAndRegister(String basePackage) {
         scanAndRegister(basePackage, null);
@@ -60,26 +51,15 @@ public class ApplicationContext implements BeanFactory {
         componentClass = dependencyResolver.resolveOrder(componentClass);
         Collections.reverse(componentClass);
         for (Class<?> clazz : componentClass) {
-            String beanName = beanFactory.createBeanDefinition(clazz).getBeanName();
+            String beanName = beanFactory.generateBeanDefinition(clazz).getBeanName();
             if (beanName != null) {
                 beanFactory.unregisterBean(beanName);
             }
         }
     }
 
-    @Override
-    public Object getBean(String name) {
-        return beanFactory.getBean(name);
-    }
-
-    @Override
-    public Object getBean(String name, Class<?> clazz) {
-        return beanFactory.getBean(name, clazz);
-    }
-
-    @Override
-    public <T> T getBean(Class<T> requiredType) {
-        return beanFactory.getBean(requiredType);
+    public DefaultBeanDefinitionRegistry getBeanFactory() {
+        return beanFactory;
     }
 }
 

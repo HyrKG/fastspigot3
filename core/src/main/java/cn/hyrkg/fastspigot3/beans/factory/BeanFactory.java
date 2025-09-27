@@ -6,7 +6,7 @@ package cn.hyrkg.fastspigot3.beans.factory;
 public interface BeanFactory {
     Object getBean(String name);
 
-    Object getBean(String name, Class<?> clazz);
-
     <T> T getBean(Class<T> requiredType);
+
+    <T> T getBean(String name, Class<T> clazz);
 }

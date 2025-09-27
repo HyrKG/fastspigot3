@@ -4,13 +4,23 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Queue;
+import java.util.Set;
 import java.util.function.Predicate;
 
 public class ReflectionUtils {
 
-    // 找到被对应注解标记的字段
+    /**
+     * 查找类中被指定注解标记的全部字段。
+     *
+     * @param clazz      目标类
+     * @param annotation 目标注解类型
+     * @return 满足条件的字段集合
+     */
     public static List<Field> findAnnotatedFields(Class<?> clazz, Class<? extends Annotation> annotation) {
         Field[] fields = clazz.getDeclaredFields();
         List<Field> annotatedFields = new ArrayList<>();
@@ -22,6 +32,13 @@ public class ReflectionUtils {
         return annotatedFields;
     }
 
+    /**
+     * 根据断言筛选类中的字段。
+     *
+     * @param clazz     目标类
+     * @param predicate 字段筛选条件
+     * @return 满足条件的字段集合
+     */
     public static List<Field> findFields(Class<?> clazz, Predicate<Field> predicate) {
         Field[] fields = clazz.getDeclaredFields();
         List<Field> matching = new ArrayList<>();
@@ -33,6 +50,14 @@ public class ReflectionUtils {
         return matching;
     }
 
+    /**
+     * 设置字段值，自动处理可访问性与静态字段。
+     *
+     * @param field    目标字段
+     * @param instance 所属实例，静态字段可为 {@code null}
+     * @param value    待写入的值
+     * @throws IllegalAccessException 访问字段失败时抛出
+     */
     public static void setFieldValue(Field field, Object instance, Object value) throws IllegalAccessException {
         boolean accessible = field.isAccessible();
         field.setAccessible(true);
@@ -45,6 +70,14 @@ public class ReflectionUtils {
         field.setAccessible(accessible);
     }
 
+    /**
+     * 读取字段值，自动处理可访问性与静态字段。
+     *
+     * @param field    目标字段
+     * @param instance 所属实例，静态字段可为 {@code null}
+     * @return 字段当前值
+     * @throws IllegalAccessException 访问字段失败时抛出
+     */
     public static Object getFieldValue(Field field, Object instance) throws IllegalAccessException {
         boolean accessible = field.isAccessible();
         field.setAccessible(true);
@@ -59,11 +92,67 @@ public class ReflectionUtils {
         return value;
     }
 
+    /**
+     * 计算 {@code candidate} 到 {@code target} 的类型距离。
+     * <p>
+     * 距离越小表示越接近目标类型，若 {@code candidate} 与 {@code target}
+     * 相同则距离为 0；若不可赋值则返回 {@link Integer#MAX_VALUE}。
+     * </p>
+     * <p>
+     * 该实现使用广度优先遍历，同时考虑父类与接口层级，以便找到最短路径。
+     * </p>
+     */
+    public static int getTypeDistance(Class<?> target, Class<?> candidate) {
+        if (target == null || candidate == null) {
+            throw new IllegalArgumentException("Target and candidate must not be null");
+        }
+        if (!target.isAssignableFrom(candidate)) {
+            return Integer.MAX_VALUE;
+        }
+        if (target.equals(candidate)) {
+            return 0;
+        }
+
+        Queue<Class<?>> queue = new ArrayDeque<>();
+        Set<Class<?>> visited = new HashSet<>();
+
+        queue.add(candidate);
+        visited.add(candidate);
+        int distance = 0;
+
+        while (!queue.isEmpty()) {
+            int levelSize = queue.size();
+            for (int i = 0; i < levelSize; i++) {
+                Class<?> current = queue.poll();
+                if (target.equals(current)) {
+                    return distance;
+                }
+                Class<?> superClass = current.getSuperclass();
+                if (superClass != null && visited.add(superClass)) {
+                    queue.add(superClass);
+                }
+                for (Class<?> iface : current.getInterfaces()) {
+                    if (visited.add(iface)) {
+                        queue.add(iface);
+                    }
+                }
+            }
+            distance++;
+        }
+        return Integer.MAX_VALUE;
+    }
+
     /// ////////////////////////////////
     /// methods
 
 
-    // 找到被对应注解标记的方法
+    /**
+     * 查找类中被指定注解标记的全部方法。
+     *
+     * @param clazz      目标类
+     * @param annotation 目标注解类型
+     * @return 满足条件的方法集合
+     */
     public static List<Method> findAnnotatedMethods(Class<?> clazz, Class<? extends Annotation> annotation) {
         Method[] methods = clazz.getDeclaredMethods();
         List<Method> annotatedMethods = new java.util.ArrayList<>();
@@ -75,7 +164,15 @@ public class ReflectionUtils {
         return annotatedMethods;
     }
 
-    // 安全调用方法（自动处理可访问性与静态方法）
+    /**
+     * 调用方法并返回结果，自动处理可访问性以及静态方法。
+     *
+     * @param method   目标方法
+     * @param instance 所属实例，静态方法可为 {@code null}
+     * @param args     方法参数
+     * @return 方法返回值
+     * @throws ReflectiveOperationException 反射调用失败时抛出
+     */
     public static Object invoke(Method method, Object instance, Object... args) throws ReflectiveOperationException {
         boolean accessible = method.isAccessible();
         method.setAccessible(true);
@@ -87,7 +184,14 @@ public class ReflectionUtils {
         }
     }
 
-    // 便捷：仅调用不关心返回值
+    /**
+     * 便捷调用方法，仅关心副作用而忽略返回值。
+     *
+     * @param method   目标方法
+     * @param instance 所属实例，静态方法可为 {@code null}
+     * @param args     方法参数
+     * @throws ReflectiveOperationException 反射调用失败时抛出
+     */
     public static void invokeVoid(Method method, Object instance, Object... args) throws ReflectiveOperationException {
         invoke(method, instance, args);
     }
