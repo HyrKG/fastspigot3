@@ -4,20 +4,33 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 public class ReflectionUtils {
 
     // 找到被对应注解标记的字段
-    public static List<Field> findAnnotatedFields(Class<?> clazz, Class annotation) {
+    public static List<Field> findAnnotatedFields(Class<?> clazz, Class<? extends Annotation> annotation) {
         Field[] fields = clazz.getDeclaredFields();
-        List<Field> annotatedFields = new java.util.ArrayList<>();
+        List<Field> annotatedFields = new ArrayList<>();
         for (Field field : fields) {
             if (field.isAnnotationPresent(annotation)) {
                 annotatedFields.add(field);
             }
         }
         return annotatedFields;
+    }
+
+    public static List<Field> findFields(Class<?> clazz, Predicate<Field> predicate) {
+        Field[] fields = clazz.getDeclaredFields();
+        List<Field> matching = new ArrayList<>();
+        for (Field field : fields) {
+            if (predicate.test(field)) {
+                matching.add(field);
+            }
+        }
+        return matching;
     }
 
     public static void setFieldValue(Field field, Object instance, Object value) throws IllegalAccessException {

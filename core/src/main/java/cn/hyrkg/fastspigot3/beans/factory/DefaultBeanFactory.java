@@ -6,13 +6,18 @@ import cn.hyrkg.fastspigot3.beans.factory.support.BeanRegistry;
 import cn.hyrkg.fastspigot3.context.annotation.AnnotationBeanNameGenerator;
 import cn.hyrkg.fastspigot3.context.annotation.BeanLifecycleProcessor;
 import cn.hyrkg.fastspigot3.context.annotation.processor.BeanAnnotationProcessor;
+import cn.hyrkg.fastspigot3.context.annotation.processor.FieldAnnotationProcessor;
 import cn.hyrkg.fastspigot3.context.annotation.processor.ProcessBeanForAnnotation;
+import cn.hyrkg.fastspigot3.context.annotation.processor.ProcessFieldForAnnotation;
 import cn.hyrkg.fastspigot3.injector.FieldInjector;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.logging.Logger;
 
 /**
  * 默认 Bean 工厂实现：负责 Bean 的创建、注册、查询、依赖注入与生命周期回调。
@@ -30,6 +35,7 @@ public class DefaultBeanFactory implements BeanFactory, BeanRegistry, BeanDefini
     private final Map<String, Object> singletonObjects = new HashMap<>();
     // 存放processor
     private final Map<Class<? extends Annotation>, String> processorBeanNameMap = new HashMap<>();
+    private final Map<Class<? extends Annotation>, String> fieldProcessorBeanNameMap = new HashMap<>();
 
     public void registerBeanDefinition(BeanDefinition beanDefinition) {
         String beanName = beanDefinition.getBeanName();
@@ -51,9 +57,7 @@ public class DefaultBeanFactory implements BeanFactory, BeanRegistry, BeanDefini
             bean.setBeanName(name);
         }
         registerBeanDefinition(bean);
-        if (clazz.isAnnotationPresent(ProcessBeanForAnnotation.class)) {
-            processorBeanNameMap.put(clazz.getAnnotation(ProcessBeanForAnnotation.class).value(), bean.getBeanName());
-        }
+        registerProcessors(clazz, bean.getBeanName());
         return bean;
     }
 
@@ -73,6 +77,7 @@ public class DefaultBeanFactory implements BeanFactory, BeanRegistry, BeanDefini
             throw new IllegalArgumentException("Bean name already exists in singleton pool: " + name);
         }
         registerBeanDefinition(beanDefinition);
+        registerProcessors(clazz, beanDefinition.getBeanName());
         singletonObjects.put(name, instance);
 
         try {
@@ -84,6 +89,7 @@ public class DefaultBeanFactory implements BeanFactory, BeanRegistry, BeanDefini
     }
 
     private void injectBeanInstance(BeanDefinition definition, Object instance) throws ReflectiveOperationException {
+        Logger logger=null;
         Class<?> clazz = definition.getBeanClass();
         lifecycle.invokeCreate(instance);
         injector.inject(instance, this, this);
@@ -105,6 +111,8 @@ public class DefaultBeanFactory implements BeanFactory, BeanRegistry, BeanDefini
     }
 
     public void unregisterBean(String name) {
+        processorBeanNameMap.values().removeIf(name::equals);
+        fieldProcessorBeanNameMap.values().removeIf(name::equals);
         beanDefinitionMap.remove(name);
         Object bean = singletonObjects.remove(name);
         if (bean != null) {
@@ -176,6 +184,32 @@ public class DefaultBeanFactory implements BeanFactory, BeanRegistry, BeanDefini
         beanDefinition.setBeanClass(clazz);
         beanDefinition.setBeanName(nameGenerator.generateBeanName(beanDefinition));
         return beanDefinition;
+    }
+
+    private void registerProcessors(Class<?> clazz, String beanName) {
+        if (clazz.isAnnotationPresent(ProcessBeanForAnnotation.class)) {
+            processorBeanNameMap.put(clazz.getAnnotation(ProcessBeanForAnnotation.class).value(), beanName);
+        }
+        if (clazz.isAnnotationPresent(ProcessFieldForAnnotation.class)) {
+            fieldProcessorBeanNameMap.put(clazz.getAnnotation(ProcessFieldForAnnotation.class).value(), beanName);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends Annotation> FieldAnnotationProcessor<T> getFieldAnnotationProcessor(Class<T> annotationType) {
+        String processorBeanName = fieldProcessorBeanNameMap.get(annotationType);
+        if (processorBeanName == null) {
+            return null;
+        }
+        Object processorBean = getBean(processorBeanName);
+        if (!(processorBean instanceof FieldAnnotationProcessor)) {
+            throw new IllegalStateException("Bean " + processorBeanName + " is not a FieldAnnotationProcessor");
+        }
+        return (FieldAnnotationProcessor<T>) processorBean;
+    }
+
+    public Set<Class<? extends Annotation>> getFieldProcessorAnnotationTypes() {
+        return new LinkedHashSet<>(fieldProcessorBeanNameMap.keySet());
     }
 }
 

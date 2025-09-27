@@ -3,6 +3,7 @@ package cn.hyrkg.fastspigot3.context.support;
 import cn.hyrkg.fastspigot3.context.annotation.Autowired;
 import cn.hyrkg.fastspigot3.context.annotation.Inject;
 import cn.hyrkg.fastspigot3.context.annotation.processor.ProcessBeanForAnnotation;
+import cn.hyrkg.fastspigot3.context.annotation.processor.ProcessFieldForAnnotation;
 import cn.hyrkg.fastspigot3.stereotype.Component;
 import cn.hyrkg.fastspigot3.util.ReflectionUtils;
 
@@ -58,6 +59,8 @@ public final class BeanDependencyResolver {
             Set<Class<?>> requires = new LinkedHashSet<>();
             ReflectionUtils.findAnnotatedFields(clazz, Inject.class).forEach(f -> requires.add(f.getType()));
             ReflectionUtils.findAnnotatedFields(clazz, Autowired.class).forEach(f -> requires.add(f.getType()));
+            ReflectionUtils.findFields(clazz, field -> field.isAnnotationPresent(ProcessFieldForAnnotation.class))
+                    .forEach(f -> requires.add(f.getType()));
             Set<Class<?>> filtered = requires.stream()
                     .filter(candidateSet::contains)
                     .collect(Collectors.toCollection(LinkedHashSet::new));

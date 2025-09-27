@@ -7,13 +7,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 组件解析器：标记一个类为特定组件类型的解析器
- * 被此注解标记的类将被用于处理指定类型的组件
+ * 字段解析器：标记一个类用于处理特定注解标记的字段注入逻辑。
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ProcessBeanForAnnotation {
+public @interface ProcessFieldForAnnotation {
 
     Class<? extends Annotation> value();
 
 }
+
