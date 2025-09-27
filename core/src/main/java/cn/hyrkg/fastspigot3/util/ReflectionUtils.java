@@ -195,4 +195,25 @@ public class ReflectionUtils {
     public static void invokeVoid(Method method, Object instance, Object... args) throws ReflectiveOperationException {
         invoke(method, instance, args);
     }
+
+    /**
+     * 获取一个类及其所有父类的声明字段
+     *
+     * @param clazz 要获取字段的类
+     * @return 包含类及其所有父类声明字段的数组
+     */
+    public static Field[] getInheritedDeclaredFields(Class<?> clazz) {
+        List<Field> fields = new ArrayList<>();
+        
+        // 遍历类的继承层次结构，获取所有声明的字段
+        Class<?> currentClass = clazz;
+        while (currentClass != null && currentClass != Object.class) {
+            for (Field field : currentClass.getDeclaredFields()) {
+                fields.add(field);
+            }
+            currentClass = currentClass.getSuperclass();
+        }
+        
+        return fields.toArray(new Field[0]);
+    }
 }

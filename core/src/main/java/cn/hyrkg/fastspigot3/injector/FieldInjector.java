@@ -25,7 +25,8 @@ public class FieldInjector implements Injector {
         try {
             Class<?> clazz = bean.getClass();
 
-            Field[] fields = clazz.getDeclaredFields();
+            // 获取当前类和所有父类的字段
+            Field[] fields = ReflectionUtils.getInheritedDeclaredFields(clazz);
             for (Field field : fields) {
 
                 boolean stopInternalProcessing = false;
