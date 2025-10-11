@@ -38,28 +38,28 @@ public class DefaultLogger implements Logger {
     }
 
     @Override
-    public void debug(String message) {
-        Bukkit.getConsoleSender().sendMessage(format("debug", message, "§7"));
+    public void debug(String message, Object... objects) {
+        Bukkit.getConsoleSender().sendMessage(format("debug", String.format(message, objects), "§7"));
     }
 
     @Override
-    public void info(String message) {
-        Bukkit.getConsoleSender().sendMessage(format("I", message, "§a"));
+    public void info(String message, Object... objects) {
+        Bukkit.getConsoleSender().sendMessage(format("I", String.format(message, objects), "§a"));
     }
 
     @Override
-    public void notice(String message) {
-        Bukkit.getConsoleSender().sendMessage(format("N", message, "§9"));
+    public void notice(String message, Object... objects) {
+        Bukkit.getConsoleSender().sendMessage(format("N", String.format(message, objects), "§9"));
     }
 
     @Override
-    public void warn(String message) {
-        Bukkit.getConsoleSender().sendMessage(format("W", message, "§e"));
+    public void warn(String message, Object... objects) {
+        Bukkit.getConsoleSender().sendMessage(format("W", String.format(message, objects), "§e"));
     }
 
     @Override
-    public void error(String message) {
-        Bukkit.getConsoleSender().sendMessage(format("E", message, "§4"));
+    public void error(String message, Object... objects) {
+        Bukkit.getConsoleSender().sendMessage(format("E", String.format(message, objects), "§4"));
     }
 
 
