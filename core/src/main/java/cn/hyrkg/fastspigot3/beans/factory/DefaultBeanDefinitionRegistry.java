@@ -32,8 +32,8 @@ public class DefaultBeanDefinitionRegistry implements BeanFactory, BeanDefinitio
     // 单例池（已经实例化好的对象）
     private final Map<String, Object> singletonObjects = new HashMap<>();
     // 存放processor
-    private final Map<Class<? extends Annotation>, String> beanProcessorBeanNameMap = new HashMap<>();
-    private final Map<Class<? extends Annotation>, String> fieldProcessorBeanNameMap = new HashMap<>();
+    private final Map<Class<? extends Annotation>, Set<String>> beanProcessorBeanNameMap = new HashMap<>();
+    private final Map<Class<? extends Annotation>, Set<String>> fieldProcessorBeanNameMap = new HashMap<>();
 
     // ======================== Bean 定义注册方法 ========================
 
@@ -230,14 +230,12 @@ public class DefaultBeanDefinitionRegistry implements BeanFactory, BeanDefinitio
     private void processBeanAnnotationsDo(Class<?> clazz, Object instance,
                                           BiConsumer<Annotation, BeanAnnotationProcessor> consumer) throws ReflectiveOperationException {
         for (Annotation annotation : clazz.getAnnotations()) {
-            BeanAnnotationProcessor processor = getBeanAnnotationProcessor(annotation.annotationType());
-            if (processor != null) {
-                consumer.accept(annotation, processor);
+            for (BeanAnnotationProcessor<? extends Annotation> beanAnnotationProcessor : getBeanAnnotationProcessor(annotation.annotationType())) {
+                consumer.accept(annotation, beanAnnotationProcessor);
             }
         }
-        BeanAnnotationProcessor beanAnnotationProcessor = getBeanAnnotationProcessor(Annotation.class); //处理所有bean的处理器
-        if (beanAnnotationProcessor != null) {
-            consumer.accept(null, beanAnnotationProcessor);
+        for (BeanAnnotationProcessor<Annotation> annotationBeanAnnotationProcessor : getBeanAnnotationProcessor(Annotation.class)) {
+            consumer.accept(null, annotationBeanAnnotationProcessor);
         }
     }
 
@@ -245,10 +243,16 @@ public class DefaultBeanDefinitionRegistry implements BeanFactory, BeanDefinitio
 
     private void registerProcessors(Class<?> clazz, String beanName) {
         if (clazz.isAnnotationPresent(ProcessBeanForAnnotation.class)) {
-            beanProcessorBeanNameMap.put(clazz.getAnnotation(ProcessBeanForAnnotation.class).value(), beanName);
+            Class<? extends Annotation> value = clazz.getAnnotation(ProcessBeanForAnnotation.class).value();
+            Set<String> beanSet = beanProcessorBeanNameMap.getOrDefault(value, new HashSet<>());
+            beanSet.add(beanName);
+            beanProcessorBeanNameMap.put(value, beanSet);
         }
         if (clazz.isAnnotationPresent(ProcessFieldForAnnotation.class)) {
-            fieldProcessorBeanNameMap.put(clazz.getAnnotation(ProcessFieldForAnnotation.class).value(), beanName);
+            Class<? extends Annotation> value = clazz.getAnnotation(ProcessFieldForAnnotation.class).value();
+            Set<String> beanSet = fieldProcessorBeanNameMap.getOrDefault(value, new HashSet<>());
+            beanSet.add(beanName);
+            fieldProcessorBeanNameMap.put(value, beanSet);
         }
     }
 
@@ -256,31 +260,39 @@ public class DefaultBeanDefinitionRegistry implements BeanFactory, BeanDefinitio
      * 根据指定的注解类型获取对应的字段注解处理器。
      */
     @SuppressWarnings("unchecked")
-    public <T extends Annotation> FieldAnnotationProcessor<T> getFieldAnnotationProcessor(Class<T> annotationType) {
-        String processorBeanName = fieldProcessorBeanNameMap.get(annotationType);
-        if (processorBeanName == null) {
-            return null;
+    public <T extends Annotation> List<FieldAnnotationProcessor<T>> getFieldAnnotationProcessor(Class<T> annotationType) {
+        Set<String> processorBeanNameList = fieldProcessorBeanNameMap.get(annotationType);
+        if (processorBeanNameList == null) {
+            return new ArrayList<>();
         }
-        Object processorBean = getBean(processorBeanName);
-        if (!(processorBean instanceof FieldAnnotationProcessor)) {
-            throw new IllegalStateException("Bean " + processorBeanName + " is not a FieldAnnotationProcessor");
+        List<FieldAnnotationProcessor<T>> fieldAnnotationProcessors = new ArrayList<>();
+        for (String beanName : processorBeanNameList) {
+            Object processorBean = getBean(beanName);
+            if (!(processorBean instanceof FieldAnnotationProcessor)) {
+                throw new IllegalStateException("Bean " + beanName + " is not a FieldAnnotationProcessor");
+            }
+            fieldAnnotationProcessors.add((FieldAnnotationProcessor<T>) processorBean);
         }
-        return (FieldAnnotationProcessor<T>) processorBean;
+        return fieldAnnotationProcessors;
     }
 
     /**
      * 根据指定的注解类型获取对应的类注解处理器。
      */
     @SuppressWarnings("unchecked")
-    public <T extends Annotation> BeanAnnotationProcessor<T> getBeanAnnotationProcessor(Class<T> annotationType) {
-        String processorBeanName = beanProcessorBeanNameMap.get(annotationType);
-        if (processorBeanName == null) {
-            return null;
+    public <T extends Annotation> List<BeanAnnotationProcessor<T>> getBeanAnnotationProcessor(Class<T> annotationType) {
+        Set<String> processorBeanNameList = beanProcessorBeanNameMap.get(annotationType);
+        if (processorBeanNameList == null) {
+            return new ArrayList<>();
         }
-        Object processorBean = getBean(processorBeanName);
-        if (!(processorBean instanceof BeanAnnotationProcessor)) {
-            throw new IllegalStateException("Bean " + processorBeanName + " is not a BeanAnnotationProcessor");
+        List<BeanAnnotationProcessor<T>> beanAnnotationProcessors = new ArrayList<>();
+        for (String beanName : processorBeanNameList) {
+            Object processorBean = getBean(beanName);
+            if (!(processorBean instanceof BeanAnnotationProcessor)) {
+                throw new IllegalStateException("Bean " + beanName + " is not a BeanAnnotationProcessor");
+            }
+            beanAnnotationProcessors.add((BeanAnnotationProcessor<T>) processorBean);
         }
-        return (BeanAnnotationProcessor<T>) processorBean;
+        return beanAnnotationProcessors;
     }
 }

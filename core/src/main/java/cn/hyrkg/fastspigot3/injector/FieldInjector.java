@@ -32,9 +32,10 @@ public class FieldInjector implements Injector {
                 boolean stopInternalProcessing = false;
                 // Pre-process field annotations
                 for (Annotation annotation : field.getAnnotations()) {
-                    FieldAnnotationProcessor fieldAnnotationProcessor = processorRegistry.getFieldAnnotationProcessor(annotation.annotationType());
-                    if (fieldAnnotationProcessor != null && fieldAnnotationProcessor.preProcess(field, annotation, bean) == ProcessorAction.STOP_PROCESSING) {
-                        stopInternalProcessing = true;
+                    for (FieldAnnotationProcessor fieldAnnotationProcessor : processorRegistry.getFieldAnnotationProcessor(annotation.annotationType())) {
+                        if (fieldAnnotationProcessor.preProcess(field, annotation, bean) == ProcessorAction.STOP_PROCESSING) {
+                            stopInternalProcessing = true;
+                        }
                     }
                 }
 
@@ -67,9 +68,10 @@ public class FieldInjector implements Injector {
 
                 // Post-process field annotations
                 for (Annotation annotation : field.getAnnotations()) {
-                    FieldAnnotationProcessor fieldAnnotationProcessor = processorRegistry.getFieldAnnotationProcessor(annotation.annotationType());
-                    if (fieldAnnotationProcessor != null) {
+
+                    for (FieldAnnotationProcessor fieldAnnotationProcessor : processorRegistry.getFieldAnnotationProcessor(annotation.annotationType())) {
                         fieldAnnotationProcessor.postProcess(field, annotation, bean);
+
                     }
                 }
             }
