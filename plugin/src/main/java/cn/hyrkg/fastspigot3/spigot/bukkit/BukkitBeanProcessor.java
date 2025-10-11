@@ -1,4 +1,4 @@
-package cn.hyrkg.fastspigot3.spigot.context;
+package cn.hyrkg.fastspigot3.spigot.bukkit;
 
 import cn.hyrkg.fastspigot3.context.annotation.processor.BeanAnnotationProcessor;
 import cn.hyrkg.fastspigot3.context.annotation.processor.ProcessBeanForAnnotation;
