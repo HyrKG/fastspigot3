@@ -54,7 +54,7 @@ public class DefaultLogger implements Logger {
 
     @Override
     public void warn(String message, Object... objects) {
-        Bukkit.getConsoleSender().sendMessage(format("W", String.format(message, objects), "§e"));
+        Bukkit.getConsoleSender().sendMessage(format("W", String.format(message, objects), "§6"));
     }
 
     @Override
