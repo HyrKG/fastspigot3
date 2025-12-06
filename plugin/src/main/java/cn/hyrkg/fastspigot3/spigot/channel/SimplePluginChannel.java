@@ -73,7 +73,9 @@ public class SimplePluginChannel implements PluginMessageListener {
     }
 
     public static SimplePluginChannel create(JavaPlugin plugin, String channel) {
-        return new SimplePluginChannel(plugin, channel);
+        SimplePluginChannel pluginChannel = new SimplePluginChannel(plugin, channel);
+        pluginChannel.init();
+        return pluginChannel;
     }
 
 }
