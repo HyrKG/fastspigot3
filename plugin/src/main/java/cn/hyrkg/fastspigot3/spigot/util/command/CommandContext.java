@@ -14,20 +14,38 @@ public class CommandContext {
         this.parameters = parameters;
     }
 
-    public String getParameter(String key) {
-        return getParameter(key, null);
+    public String getParameter(String... keys) {
+        for (String key : keys) {
+            if (parameters.containsKey(key)) {
+                return parameters.get(key);
+            }
+        }
+        return null;
     }
 
-    public String getParameter(String key, String def) {
+    public String getParameterOrDef(String key, String def) {
         return parameters.getOrDefault(key, def);
     }
 
-    public boolean hasParameter(String key) {
-        return parameters.containsKey(key);
+    public String getParameterOrDef(String[] keys, String def) {
+        String parameter = getParameter(keys);
+        if (parameter == null) {
+            return def;
+        }
+        return parameter;
     }
 
-    public boolean isParameter(String key) {
-        String parameter = getParameter(key);
+    public boolean hasParameter(String... keys) {
+        for (String s : keys) {
+            if (parameters.containsKey(s)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isParameter(String... keys) {
+        String parameter = getParameter(keys);
         if (parameter == null) {
             return false;
         }
