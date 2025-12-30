@@ -14,7 +14,7 @@
     </modules>
 
     <properties>
-        <plugin.version>1.0.0</plugin.version>
+        <plugin.version>1.0.1</plugin.version>
         <core.version>1.0.0</core.version>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>

@@ -1,5 +1,6 @@
 package cn.hyrkg.fastspigot3.spigot;
 
+import cn.hyrkg.fastspigot3.spigot.easygui.EasyGuiHandler;
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.annotation.plugin.Plugin;
@@ -12,6 +13,7 @@ public class AppFastSpigot extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
+        EasyGuiHandler.init(this);
     }
 
 
