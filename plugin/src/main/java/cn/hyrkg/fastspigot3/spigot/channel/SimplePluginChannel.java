@@ -60,8 +60,15 @@ public class SimplePluginChannel implements PluginMessageListener {
 
     }
 
-    public void sendMessage(Player player, byte[] data) {
-        player.sendPluginMessage(plugin, channel, data);
+    public void sendMessage(Player player, byte[] bytes) {
+        player.sendPluginMessage(plugin, channel, bytes);
+    }
+
+    public void sendMessage(Player player, int discriminator, byte[] data) {
+        byte[] payload = new byte[data.length + 1];
+        payload[0] = (byte) discriminator;
+        System.arraycopy(data, 0, payload, 1, data.length);
+        player.sendPluginMessage(plugin, channel, payload);
     }
 
     public void sendMessage(Player player, String rawMessage) {
