@@ -60,6 +60,10 @@ public class SimplePluginChannel implements PluginMessageListener {
 
     }
 
+    public void sendMessage(Player player, byte[] data) {
+        player.sendPluginMessage(plugin, channel, data);
+    }
+
     public void sendMessage(Player player, String rawMessage) {
         try {
             player.sendPluginMessage(plugin, channel, ("@" + rawMessage).getBytes("UTF-8"));
