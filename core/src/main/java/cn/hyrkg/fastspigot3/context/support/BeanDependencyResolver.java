@@ -2,6 +2,7 @@ package cn.hyrkg.fastspigot3.context.support;
 
 import cn.hyrkg.fastspigot3.context.annotation.Autowired;
 import cn.hyrkg.fastspigot3.context.annotation.Inject;
+import cn.hyrkg.fastspigot3.context.annotation.Provide;
 import cn.hyrkg.fastspigot3.context.annotation.processor.ProcessBeanForAnnotation;
 import cn.hyrkg.fastspigot3.context.annotation.processor.ProcessFieldForAnnotation;
 import cn.hyrkg.fastspigot3.stereotype.Component;
@@ -49,6 +50,7 @@ public final class BeanDependencyResolver {
         for (Class<?> clazz : candidates) {
             // 收集字段上的强/弱依赖（当前都计为依赖边），仅保留候选集合内的类型
             Set<Class<?>> requires = new LinkedHashSet<>();
+            ReflectionUtils.findAnnotatedFields(clazz, Provide.class).forEach(f -> requires.add(f.getType()));
             ReflectionUtils.findAnnotatedFields(clazz, Inject.class).forEach(f -> requires.add(f.getType()));
             ReflectionUtils.findAnnotatedFields(clazz, Autowired.class).forEach(f -> requires.add(f.getType()));
             ReflectionUtils.findFields(clazz, field -> field.isAnnotationPresent(ProcessFieldForAnnotation.class))

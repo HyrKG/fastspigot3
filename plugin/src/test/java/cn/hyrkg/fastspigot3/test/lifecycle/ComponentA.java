@@ -1,12 +1,12 @@
 package cn.hyrkg.fastspigot3.test.lifecycle;
 
-import cn.hyrkg.fastspigot3.context.annotation.Inject;
 import cn.hyrkg.fastspigot3.context.annotation.OnCreate;
 import cn.hyrkg.fastspigot3.context.annotation.OnReady;
+import cn.hyrkg.fastspigot3.context.annotation.Provide;
 
 public class ComponentA {
 
-    @Inject
+    @Provide
     private ComponentB b;
 
     @OnCreate

@@ -7,6 +7,7 @@ import cn.hyrkg.fastspigot3.beans.factory.support.BeanProcessorRegistry;
 import cn.hyrkg.fastspigot3.context.annotation.Autowired;
 import cn.hyrkg.fastspigot3.context.annotation.Inject;
 import cn.hyrkg.fastspigot3.context.annotation.Instance;
+import cn.hyrkg.fastspigot3.context.annotation.Provide;
 import cn.hyrkg.fastspigot3.context.annotation.processor.FieldAnnotationProcessor;
 import cn.hyrkg.fastspigot3.context.annotation.processor.ProcessorAction;
 import cn.hyrkg.fastspigot3.util.ReflectionUtils;
@@ -14,11 +15,14 @@ import com.google.common.base.Preconditions;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 字段注入器：负责处理 Bean 初始化时的字段级依赖注入工作。
  */
 public class FieldInjector implements Injector {
+    private static final Set<String> WARNED_DEPRECATED_INJECT_SITES = ConcurrentHashMap.newKeySet();
 
     @Override
     public void inject(Object bean, BeanFactory factory, BeanDefinitionRegistry definitionRegistry, BeanProcessorRegistry processorRegistry) {
@@ -45,8 +49,22 @@ public class FieldInjector implements Injector {
                         ReflectionUtils.setFieldValue(field, bean, bean);
                     }
 
-                    if (field.isAnnotationPresent(Inject.class)) {
+                    if (field.isAnnotationPresent(Provide.class)) {
+                        Provide provideAnno = field.getAnnotation(Provide.class);
+                        Object fieldValue = ReflectionUtils.getFieldValue(field, bean);
+                        if (fieldValue != null) {
+                            definitionRegistry.registerBean(provideAnno.value(), fieldValue);
+                        } else {
+                            BeanDefinition beanDefinition = definitionRegistry.registerBean(provideAnno.value(), field.getType());
+                            Object beanToInject = factory.getBean(beanDefinition.getBeanName());
+                            ReflectionUtils.setFieldValue(field, bean, beanToInject);
+                        }
+                    } else if (field.isAnnotationPresent(Inject.class)) {
                         Inject injectAnno = field.getAnnotation(Inject.class);
+                        String site = clazz.getName() + "#" + field.getName();
+                        if (WARNED_DEPRECATED_INJECT_SITES.add(site)) {
+                            System.err.println("[FastSpigot3] Deprecated @Inject detected at " + site + " (type=" + field.getType().getName() + ", name=" + injectAnno.value() + "). Please replace with @Provide.");
+                        }
                         Object fieldValue = ReflectionUtils.getFieldValue(field, bean);
                         if (fieldValue != null) {
                             definitionRegistry.registerBean(injectAnno.value(), fieldValue);
@@ -55,9 +73,7 @@ public class FieldInjector implements Injector {
                             Object beanToInject = factory.getBean(beanDefinition.getBeanName());
                             ReflectionUtils.setFieldValue(field, bean, beanToInject);
                         }
-                    }
-
-                    if (field.isAnnotationPresent(Autowired.class)) {
+                    } else if (field.isAnnotationPresent(Autowired.class)) {
                         Autowired autowiredAnno = field.getAnnotation(Autowired.class);
                         BeanDefinition definition = autowiredAnno.value().isEmpty() ? definitionRegistry.getBeanDefinition(field.getType()) : definitionRegistry.getBeanDefinition(autowiredAnno.value());
                         Preconditions.checkArgument(definition != null, "No qualifying bean of type %s found for dependency %s in %s", field.getType().getName(), field.getName(), clazz.getName());
