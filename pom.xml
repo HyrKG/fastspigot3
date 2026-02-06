@@ -14,8 +14,8 @@
     </modules>
 
     <properties>
-        <plugin.version>1.0.1</plugin.version>
-        <core.version>1.0.0</core.version>
+        <plugin.version>1.1.0</plugin.version>
+        <core.version>1.1.0</core.version>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
