@@ -9,16 +9,15 @@
         <version>1.0</version>
     </parent>
 
-    <artifactId>plugin</artifactId>
+    <artifactId>fastspigot-plugin</artifactId>
     <version>${plugin.version}</version>
 
     <dependencies>
         <dependency>
             <groupId>cn.hyrkg.fastspigot3</groupId>
-            <artifactId>core</artifactId>
+            <artifactId>fastspigot-core</artifactId>
             <version>${core.version}</version>
         </dependency>
-
 
         <dependency>
             <groupId>org.spigotmc</groupId>
@@ -67,7 +66,7 @@
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <artifactSet>
                                 <includes>
-                                    <include>cn.hyrkg.fastspigot3:core</include>
+                                    <include>cn.hyrkg.fastspigot3:fastspigot-core</include>
                                     <include>co.aikar:acf-bukkit</include>
                                 </includes>
                             </artifactSet>

@@ -24,11 +24,6 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>cn.hyrkg.fastspigot3</groupId>
-                <artifactId>core</artifactId>
-                <version>${core.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>33.4.8-jre</version>

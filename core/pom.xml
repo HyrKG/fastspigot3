@@ -9,7 +9,7 @@
         <version>1.0</version>
     </parent>
 
-    <artifactId>core</artifactId>
+    <artifactId>fastspigot-core</artifactId>
     <version>${core.version}</version>
 
     <dependencies>
