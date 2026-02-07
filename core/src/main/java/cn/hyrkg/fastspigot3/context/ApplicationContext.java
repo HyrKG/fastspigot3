@@ -7,6 +7,7 @@ import cn.hyrkg.fastspigot3.context.support.BeanDependencyResolver;
 import cn.hyrkg.fastspigot3.scanner.Scanner;
 import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
@@ -33,18 +34,43 @@ public class ApplicationContext {
     }
 
     public void scanAndRegister(String basePackage, Class<?> anchorClass) {
-        List<Class<?>> componentClass = null;
+        List<BeanDefinition> definitions = scanAndRegisterDefinitions(basePackage, anchorClass);
+        loadBeans(definitions);
+    }
+
+    /**
+     * 扫描并注册指定包路径下的所有组件定义，但不立即实例化。
+     *
+     * @param basePackage 扫描的基础包名
+     * @param anchorClass 锚点类（用于确定扫描位置）
+     * @return 注册成功的 Bean 定义列表（已按依赖顺序排序）
+     */
+    public List<BeanDefinition> scanAndRegisterDefinitions(String basePackage, Class<?> anchorClass) {
+        List<Class<?>> componentClasses;
         if (anchorClass == null) {
-            componentClass = beanScanner.scan(basePackage);
+            componentClasses = beanScanner.scan(basePackage);
         } else {
-            componentClass = beanScanner.scan(basePackage, anchorClass);
+            componentClasses = beanScanner.scan(basePackage, anchorClass);
         }
-        componentClass = dependencyResolver.resolveOrder(componentClass);
-        for (Class<?> clazz : componentClass) {
+        componentClasses = dependencyResolver.resolveOrder(componentClasses);
+
+        List<BeanDefinition> definitions = new ArrayList<>();
+        for (Class<?> clazz : componentClasses) {
+            definitions.add(beanFactory.registerBean(clazz));
+        }
+        return definitions;
+    }
+
+    /**
+     * 根据提供的 Bean 定义列表，按顺序实例化并注入所有 Bean。
+     *
+     * @param definitions 要加载的 Bean 定义列表
+     */
+    public void loadBeans(List<BeanDefinition> definitions) {
+        for (BeanDefinition definition : definitions) {
             long start = System.currentTimeMillis();
-            BeanDefinition beanDefinition = beanFactory.registerBean(clazz);
-            beanFactory.loadBean(beanDefinition.getBeanName());
-            log("..." + beanDefinition.getBeanName() + " (" + (System.currentTimeMillis() - start) + " ms)");
+            beanFactory.loadBean(definition.getBeanName());
+            log("..." + definition.getBeanName() + " (" + (System.currentTimeMillis() - start) + " ms)");
         }
     }
 

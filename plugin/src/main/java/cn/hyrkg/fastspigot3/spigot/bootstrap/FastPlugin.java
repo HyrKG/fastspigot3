@@ -1,12 +1,15 @@
 package cn.hyrkg.fastspigot3.spigot.bootstrap;
 
 import cn.hyrkg.fastspigot3.context.ApplicationContext;
+import cn.hyrkg.fastspigot3.beans.factory.config.BeanDefinition;
 import cn.hyrkg.fastspigot3.spigot.AppFastSpigot;
 import cn.hyrkg.fastspigot3.spigot.logger.Logger;
 import cn.hyrkg.fastspigot3.spigot.logger.LoggerProcessor;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.List;
 
 public class FastPlugin extends JavaPlugin {
     private Logger logger;
@@ -29,8 +32,13 @@ public class FastPlugin extends JavaPlugin {
 
         long pluginStartTime = System.currentTimeMillis(); //记录插件组件加载开始时间
         logger.notice("正在加载" + getDescription().getName() + " v" + getDescription().getVersion() + "...");
+
+        // 修复：先注册定义，确保主类注入时能找到依赖
+        List<BeanDefinition> definitions = applicationContext.scanAndRegisterDefinitions(getClass().getPackage().getName(), getClass());
+        // 注册插件实例并执行注入
         applicationContext.getBeanFactory().registerBean(this);
-        applicationContext.scanAndRegister(getClass().getPackage().getName(), getClass());
+        // 加载剩余组件
+        applicationContext.loadBeans(definitions);
 
         long loadCompletedTime = System.currentTimeMillis(); //记录加载结束时间
         logger.notice("加载完成,库耗时 " + (pluginStartTime - libStartTime) + " ms,组件耗时 " + (loadCompletedTime - pluginStartTime) + " ms,共 " + (loadCompletedTime - libStartTime) + " ms");
