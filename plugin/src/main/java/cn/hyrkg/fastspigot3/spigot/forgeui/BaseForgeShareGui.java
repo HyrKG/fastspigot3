@@ -35,19 +35,24 @@ public abstract class BaseForgeShareGui implements IForgeGui {
 
     }
 
-    /** 添加观察者 */
+    /**
+     * 添加观察者
+     */
     public void addViewer(Player player) {
         viewerSets.add(player);
     }
 
-    /** 移除观察者 */
+    /**
+     * 移除观察者
+     */
     public void removeViewer(Player player) {
         viewerSets.remove(player);
     }
 
     /**
      * 批量替换观察者集合，自动关闭已移除玩家的界面，可选自动展示给新增玩家
-     * @param newViewers 新的观察者集合
+     *
+     * @param newViewers   新的观察者集合
      * @param displayToNew 是否自动展示给新增的观察者
      */
     public void setViewers(HashSet<Player> newViewers, boolean displayToNew) {
@@ -79,24 +84,32 @@ public abstract class BaseForgeShareGui implements IForgeGui {
 
     }
 
-    /** 向所有观察者展示GUI */
-    public final void display() {
+    /**
+     * 向所有观察者展示GUI
+     */
+    public void display() {
         guiHandler.display(this);
     }
 
-    /** 向指定玩家展示GUI */
-    public final void display(Player player) {
+    /**
+     * 向指定玩家展示GUI
+     */
+    public void display(Player player) {
         viewerSets.add(player);
         guiHandler.display(player, this);
     }
 
-    /** 关闭所有观察者的GUI */
-    public final void close() {
+    /**
+     * 关闭所有观察者的GUI
+     */
+    public void close() {
         guiHandler.close(this);
     }
 
-    /** 关闭指定玩家的GUI */
-    public final void close(Player player) {
+    /**
+     * 关闭指定玩家的GUI
+     */
+    public void close(Player player) {
         guiHandler.close(player, this);
     }
 
@@ -132,7 +145,9 @@ public abstract class BaseForgeShareGui implements IForgeGui {
         return viewerSets;
     }
 
-    /** 强制同步属性变更到客户端，仅在已展示且有变更时生效 */
+    /**
+     * 强制同步属性变更到客户端，仅在已展示且有变更时生效
+     */
     public void forceSynProperty() {
         if (!isDisplayed) return;
         if (this.getSharedProperty().detectChange()) {
@@ -141,7 +156,9 @@ public abstract class BaseForgeShareGui implements IForgeGui {
     }
 
 
-    /** 创建消息构建器 */
+    /**
+     * 创建消息构建器
+     */
     public SimpleMsg msg() {
         return SimpleMsg.create(this, guiHandler);
     }
